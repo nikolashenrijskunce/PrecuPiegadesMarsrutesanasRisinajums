@@ -1,0 +1,9 @@
+Pastāv ļoti daudz jau esošu risinājumu piegādes maršrutu plānošanai, piemēram:
+
+Google Maps Platform / Route Optimization API – aprēķina optimālus maršrutus vairākiem piegādes punktiem, ņemot vērā satiksmes apstākļus, transportlīdzekļa tipu un iespējamos ierobežojumus. To var viegli integrēt esošajās lietotnēs, izmantojot API.
+
+Routific – ļauj importēt klientu adreses, ņemt vērā autovadītāju darba laikus un transportlīdzekļu ietilpību. Piedāvā maršrutu optimizāciju un reāllaika piegāžu izsekošanu, nodrošinot efektīvāku loģistikas pārvaldību.
+
+OptimoRoute - nodrošina vairāku autovadītāju un transportlīdzekļu pārvaldību, atbalsta piegādes laika logus, klientu prioritāšu iestatīšanu un GPS izsekošanu. Klienti automātiski saņem atjauninājumus par piegādes statusu.
+
+Amazon Logistics / AWS Route 53 + Fleet Management - Amazon izmanto savu iekšējo maršrutēšanas sistēmu, kas ņem vērā reāllaika satiksmi, klientu atrašanās vietas, paku izmērus un autovadītāju grafikus. Tā apvieno mašīnmācīšanās metodes ar optimizācijas algoritmiem, piemēram, Dijkstra vai “Vehicle Routing Problem with Time Windows” (VRPTW), lai sasniegtu maksimālu efektivitāti.
