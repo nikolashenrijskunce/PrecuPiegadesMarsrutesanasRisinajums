@@ -1,0 +1,74 @@
+@startuml
+' Valsts: UTF-8, direction
+left to right direction
+skinparam class {
+  Shadowing false
+  RoundCorner 6
+}
+
+title Loģistikas / Piegādes sistēmas klases diagramma
+
+class Klients {
+  id : String
+  vārds : String
+  e_pasts : String
+  adrese : String
+  tālrunis : String
+}
+
+class Pasūtījums {
+  id : String
+  datums : Date
+  kopējāCena : Float
+  svarsKg : Float
+}
+
+class Piegāde {
+  id : String
+  piegādesDatums : Date
+  attālumsKm : Float
+  piegādesLaiksMin : Int
+  piegadesAdrese : String
+  statuss : String
+}
+
+class Maršruts {
+  id : String
+  sākumaPunkts : String
+  galamērķis : String
+  kopējaisAttālums : Float
+}
+
+class Transportlīdzeklis {
+  id : String
+  reģistrācijasNr : String
+  tips : String
+  kravnesībaKg : Float
+}
+
+class Autovadītājs {
+  id : String
+  vārds : String
+  licenceNr : String
+}
+
+class Noliktava {
+  id : String
+  nosaukums : String
+  adrese : String
+}
+
+
+' Asociācijas ar multiplicitātēm
+Klients "1" --> "1..*" Pasūtījums : veic / ir saistīts ar
+Pasūtījums "1" --> "1" Piegāde : ir saistīts ar
+Piegāde "1" --> "1" Maršruts : izmanto
+Maršruts "1" --> "1" Transportlīdzeklis : veikts ar
+Autovadītājs "1" --> "1" Transportlīdzeklis : vada
+Maršruts "1" --> "1" Noliktava : sākas/beidzas pie
+
+
+' Ja vēlies precizēt daudzkārtējas attiecības (piem., Pasūtījums <-> Produkts daudzdaudz attiecība),
+' ieteicams pievienot starpklasi (OrderLine) ar daudzumu un cenu atribūtiem.
+
+@enduml
