@@ -2,6 +2,7 @@ from flask import Flask, redirect, url_for, render_template
 
 app = Flask(__name__)
 
+# visas lapas ir definētas, kā funkcijas, kas ved uz kādu html failu no templates mapes, un vēl padod tam datus
 
 @app.route('/')
 def hello_world():  # put application's code here
