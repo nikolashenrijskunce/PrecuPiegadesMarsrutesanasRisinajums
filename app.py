@@ -1,19 +1,19 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, render_template
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def hello_world():  # put application's code here
-    return 'Hello World!'
+    return render_template("home.html")
 
 @app.route('/orders')
 def order():  # put application's code here
-    return '<h1>Current orders</h1>'
+    return render_template("orders.html", order_amount=7, order_list=["00001", "00002", "00003", "00004", "00005", "00006", "00007"])
 
 @app.route('/orders/<orderid>')
 def order_by_id(orderid):  # put application's code here
-    return f'<h1>Order (id:{orderid}) current status</h1>'
+    return render_template("order_details.html", order_id=orderid)
 
 @app.route('/<name>')
 def driver(name):  # put application's code here
