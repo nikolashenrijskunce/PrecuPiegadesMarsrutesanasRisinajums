@@ -1,20 +1,20 @@
-from flask import Flask, redirect, url_for, render_template
+from flask import Flask, redirect, url_for, render_template, request
 
 app = Flask(__name__)
 
 # visas lapas ir definētas, kā funkcijas, kas ved uz kādu html failu no templates mapes, un vēl padod tam datus
 
 @app.route('/')
-def hello_world():  # put application's code here
-    return render_template("home.html")
+def home():  # put application's code here
+    return render_template('home.html')
 
 @app.route('/orders')
 def order():  # put application's code here
-    return render_template("orders.html", order_amount=7, order_list=["00001", "00002", "00003", "00004", "00005", "00006", "00007"])
+    return render_template('orders.html', order_amount=7, order_list=['00001', '00002', '00003', '00004', '00005', '00006', '00007'])
 
 @app.route('/orders/<orderid>')
 def order_by_id(orderid):  # put application's code here
-    return render_template("order_details.html", order_id=orderid)
+    return render_template('order_details.html', order_id=orderid)
 
 @app.route('/<name>')
 def driver(name):  # put application's code here
@@ -25,5 +25,20 @@ def admin():  # put application's code here
     # return redirect(url_for('hello_world'))
     return redirect(url_for('driver', name='admin_1'))
 
+@app.route('/login', methods=['GET', 'POST']) #login url, kas var ari darit post ne tikai get (parejiem defaultaa tikai get)
+def login():
+    if request.method == 'POST':
+        username = request.form['email']
+        password = request.form['pwd']
+        if username != 'admin' or password != '123':
+            return redirect(url_for('login'))
+        return render_template('profile.html', user=username)
+    else:
+        return render_template('login.html')
+
+@app.route('/profile')
+def profile():  # put application's code here
+    return render_template('profile.html')
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

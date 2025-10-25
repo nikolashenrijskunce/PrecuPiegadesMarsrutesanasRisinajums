@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Login page{% endblock %}
+{% block content %}
+    <h1>Please login</h1>
+{#    action var noradit, uz kuru lapu aizved login, bet, ja ieliek '#', tad atstas taja pas lapa'#}
+    <form action="#" method="post">
+        <p>Username:</p>
+        <p>
+            {#label palielina hitbox pogam un ari palidz ar accessibility#}
+            <label>
+                <input type="text" name="email" required/>
+            </label>
+        </p>
+        <p>Password:</p>
+        <p>
+            <label>
+                <input type="password" name="pwd" required/>
+            </label>
+        </p>
+        <p>
+            <input type="submit" value="Login"/>
+        </p>
+    </form>
+{% endblock %}
