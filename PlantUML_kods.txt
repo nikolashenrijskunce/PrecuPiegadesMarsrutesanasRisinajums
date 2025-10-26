@@ -62,7 +62,7 @@ class Noliktava {
 ' Asociācijas ar multiplicitātēm
 Klients "1" --> "1..*" Pasūtījums : veic / ir saistīts ar
 Pasūtījums "1" --> "1" Piegāde : ir saistīts ar
-Piegāde "1" --> "1" Maršruts : izmanto
+Piegāde "1..*" --> "1" Maršruts : izmanto
 Maršruts "1" --> "1" Transportlīdzeklis : veikts ar
 Autovadītājs "1" --> "1" Transportlīdzeklis : vada
 Maršruts "1" --> "1" Noliktava : sākas/beidzas pie
