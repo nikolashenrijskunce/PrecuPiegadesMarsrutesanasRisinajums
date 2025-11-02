@@ -1,6 +1,11 @@
-{% extends "base.html" %}
-{% block title %}Login page{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
     <h1>Please login</h1>
 {#    action var noradit, uz kuru lapu aizved login, bet, ja ieliek '#', tad atstas taja pas lapa'#}
     <form action="#" method="post">
@@ -21,4 +26,5 @@
             <input type="submit" value="Login"/>
         </p>
     </form>
-{% endblock %}
+</body>
+</html>
