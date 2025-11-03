@@ -40,7 +40,7 @@ def login():
         del password, stored_hash
         return render_template('profile.html', user=username)
     else:
-        return render_template('login.html')
+        return render_template('authoirzation/login.html')
 
 @app.route('/profile')
 def profile():  # put application's code here
