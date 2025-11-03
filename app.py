@@ -18,7 +18,7 @@ def order_by_id(orderid):  # put application's code here
     return render_template('orders/order_details.html', order_id=orderid)
 
 @app.route('/<name>')
-def driver(name):  # put application's code here
+def driver(name):  # put application's code here komentars komentars
     return '<h1>Driver: ' + name + '</h1>'
 
 @app.route('/admin')
