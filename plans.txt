@@ -1,0 +1,22 @@
+Visiem:
+    Var ielogoties
+    Var registreties
+Klienti:
+    Pasutijumu dala:
+        Redz savu pasutijumu vesturi
+        Redz pasreizejos pasutijumus
+        Redz piegades laiku
+        Var ielogoties ara
+        Para das piegades cena
+    Profils:
+        Redz sava profila pamata informaciju
+Vaditaji:
+    Pautijumi:
+        Redz pasutijumus
+        Redz pasutijumu sgaidamo piegades laiku
+        Pasutijums:
+            Redz karte attelotu marsrutu
+            Redz sagaidamo piegades laiku
+            Var izveleties transportlidzekli?
+Administrators:
+    Redz informaciju par klientiem, vaditajiem un transportlidzkliem
