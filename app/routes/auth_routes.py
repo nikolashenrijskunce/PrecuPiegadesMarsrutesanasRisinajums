@@ -22,9 +22,10 @@ def login():
 
         if not verify_login(username, password):
             # failed login -> stay on login page
+            del password
             return redirect(url_for('auth.login'))
-
         # login success -> go to profile
+        del password
         return render_template('profile.html', user=username)
 
     return render_template('authorization/login.html')
@@ -64,3 +65,7 @@ def register():
 
     # display the form
     return render_template('authorization/register.html')
+
+@auth_bp.route('/termsandconditions')
+def termsandconditions():
+    return render_template('authorization/terms_cond.html')
