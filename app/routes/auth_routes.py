@@ -7,7 +7,7 @@ import os
 #print("USING DB PATH:", os.path.abspath('database.db'))
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # goes up from /routes to /app
-DB_PATH = os.path.join(os.path.dirname(BASE_DIR), "sql_command_implementation", "database.db")
+DB_PATH = os.path.join(os.path.dirname(BASE_DIR), "database.db")
 
 auth_bp = Blueprint('auth', __name__)
 
