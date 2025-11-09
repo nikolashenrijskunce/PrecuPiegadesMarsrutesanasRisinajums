@@ -1,13 +1,29 @@
-from app import bcrypt
+import sqlite3
+import bcrypt
 
-def verify_login(username, password):
-    if username != 'admin':
-        return False
-
+def verify_login(email, password):
+    """
+    Verify login by checking if the email exists in the database
+    and if the provided password matches the hashed one.
+    """
     try:
-        with open('passwords.txt') as f:
-            stored_hash = f.readline().strip()
-    except FileNotFoundError:
-        return False
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
 
-    return bcrypt.check_password_hash(stored_hash, password)
+        # Assuming 'name' column stores the client's email
+        cursor.execute("SELECT password FROM clients WHERE name = ?", (email,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if not result:
+            # No such user in the database
+            return False
+
+        stored_hash = result[0]
+
+        # Compare the entered password with the stored hash
+        return bcrypt.checkpw(password.encode('utf-8'), stored_hash)
+
+    except Exception as e:
+        print("Error during login verification:", e)
+        return False

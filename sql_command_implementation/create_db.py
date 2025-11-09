@@ -1,5 +1,9 @@
 import sqlite3
 
+import os
+print("USING DB PATH:", os.path.abspath('database.db'))
+
+
 conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 
@@ -13,7 +17,8 @@ CREATE TABLE clients (
     client_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     address TEXT NOT NULL,
-    phone TEXT NOT NULL
+    phone TEXT NOT NULL,
+    password TEXT NOT NULL
 );
 
 CREATE TABLE products (
