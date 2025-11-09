@@ -19,4 +19,4 @@ Vaditaji:
             Redz sagaidamo piegades laiku
             Var izveleties transportlidzekli?
 Administrators:
-    Redz informaciju par klientiem, vaditajiem un transportlidzkliem
+    Redz informaciju par klientiem, vaditajiem un transportlidzekliem
