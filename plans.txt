@@ -1,22 +1,51 @@
+Ko vel vajadzetu:
+    paroli autovaditajiem
+    uztaisit atseviskus html files autovadiatjiem un klientiem, kur katram ir piekluve pie savam lietam
+    pievienot O auth
+    transportlidzeklis gnj katram vaditajam ir pieskirts
+
+
+
+
+
 Visiem:
-    Var ielogoties
-    Var registreties
+    Var ielogoties kaa klients, vaditajs vai administrators
+    Var registreties kaa klients
 Klienti:
-    Pasutijumu dala:
+    home:
+        aktuala informacijz par pasreizejo pasutijumu
+    make_order:
+        var veikt jaunu pasutijumu pa soliem\
+        Paradas piegades cena
+    orders:
         Redz savu pasutijumu vesturi
         Redz pasreizejos pasutijumus
-        Redz piegades laiku
-        Var ielogoties ara
-        Paradas piegades cena
-    Profils:
-        Redz sava profila pamata informaciju
+        order_details:
+            Redz piegades laiku
+            Paradas piegades cena
+    profile:
+        Redz sava profila pamata informaciju kaa epastu, talruni utt
+        Var nomainit informaciju par sevi
+    Var izlogoties ara
 Vaditaji:
-    Pautijumi:
+    home:
+        Redz darba grafiku
+        Redz nostradatas stundas?
+        Redz savu transportlidzkeli
+    orders:
         Redz pasutijumus
         Redz pasutijumu sgaidamo piegades laiku
         Pasutijums:
             Redz karte attelotu marsrutu
             Redz sagaidamo piegades laiku
             Var izveleties transportlidzekli?
+    Var izlogoties ara
 Administrators:
-    Redz informaciju par klientiem, vaditajiem un transportlidzekliem
+    orders:
+        var redzet un parvaldit info par orders
+        var redzet, kuri orders ir laicigi pienakusi un kuri ar nokavesanos
+    drivers:
+        var parvaldit un redzet infor par visiem vaditajiem
+    vehicles:
+        var redzet info par transportlidzkliem kaa tehniska pase un apskates deriguma termins
+        nobraukta distance un degvielas izmaksas?
