@@ -43,14 +43,41 @@ cursor.executemany('INSERT INTO products (name, weight, price) VALUES (?, ?, ?)'
 print("✅ Inserted 100 products")
 
 # Insert sample orders
+
+# Sample addresses
+pickup_addresses = [
+    "Rīgas iela 1, Rīga",
+    "Brīvības iela 10, Rīga",
+    "Lāčplēša iela 5, Rīga"
+]
+
+delivery_addresses = [
+    "Daugavas iela 20, Rīga",
+    "Valdemāra iela 8, Rīga",
+    "Baznīcas iela 3, Rīga"
+]
+
+driver_names = ["Jānis B.", "Anna K.", "Pēteris S."]
+vehicle_ids = ["TRK-01", "TRK-02", "TRK-03"]
+
 for order_id in range(1, 6):  # 5 sample orders
     client_id = random.randint(1, 50)
     order_date = "2025-11-05"
-    status = "Pending"
-    cursor.execute(
-        'INSERT INTO orders (client_id, order_date, status) VALUES (?, ?, ?)',
-        (client_id, order_date, status)
-    )
+    status = random.choice(["pending", "assigned", "in_transit", "delivered", "cancelled"])
+    pickup_address = random.choice(pickup_addresses)
+    delivery_address = random.choice(delivery_addresses)
+    estimated_delivery_time = "2025-11-06 14:00"
+    driver_name = random.choice(driver_names)
+    vehicle_id = random.choice(vehicle_ids)
+    price = round(random.uniform(25, 1500), 2)
+    cursor.execute("""
+                   INSERT INTO orders
+                   (client_id, order_date, status, pickup_address, delivery_address, estimated_delivery_time,
+                    driver_name, vehicle_id, price)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                   """, (client_id, order_date, status, pickup_address, delivery_address, estimated_delivery_time,
+                         driver_name, vehicle_id, price))
+
     new_order_id = cursor.lastrowid
 
     # Add random order items

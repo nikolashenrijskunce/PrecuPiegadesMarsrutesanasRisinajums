@@ -1,11 +1,11 @@
-{% extends "pages_admin/base.html" %}
+{% extends "pages_client/base.html" %}
 {% block title %}Order details{{ order_id }}{% endblock %}
 {% block content %}
 <div class="container py-4">
 
     <!-- Back button -->
     <div class="mb-3">
-        <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-secondary">
+        <a href="{{ url_for('client.orders') }}" class="btn btn-outline-secondary">
             &larr; Back
         </a>
     </div>

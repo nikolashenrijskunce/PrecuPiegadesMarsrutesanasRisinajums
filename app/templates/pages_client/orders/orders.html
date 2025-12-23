@@ -1,4 +1,4 @@
-{% extends "pages_admin/base.html" %}
+{% extends "pages_client/base.html" %}
 {% block title %}Orders{% endblock %}
 {% block content %}
 <div class="container py-4">
@@ -9,7 +9,7 @@
             <h2>My orders</h2>
             <p class="text-muted mb-0">See all of your orders</p>
         </div>
-        <a href="{{ url_for('admin.make_order') }}" class="btn btn-primary">New order</a>
+        <a href="{{ url_for('client.make_order') }}" class="btn btn-primary">New order</a>
     </div>
 
     {% if order_amount == 0 %}
@@ -25,7 +25,7 @@
     <div class="row g-4">
         {% for order in order_list %}
         <div class="card shadow-sm cursor-pointer"
-             onclick="window.location.href='/admin/orders/{{ order['order_id'] }}'">
+             onclick="window.location.href='/client/orders/{{ order['order_id'] }}'">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Order {{ order['order_id'] }}</h5>
                 {% if order['status'] == 'pending' %}

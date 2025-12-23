@@ -10,12 +10,14 @@ def create_app():
     bcrypt.init_app(app)
 
     # Import and register Blueprints
-    from app.routes.main_routes import main_bp
-    from app.routes.order_routes import order_bp
+    from app.routes.client_routes import client_bp
+    from app.routes.driver_routes import driver_bp
+    from app.routes.admin_routes import admin_bp
     from app.routes.auth_routes import auth_bp
 
-    app.register_blueprint(main_bp)
-    app.register_blueprint(order_bp, url_prefix='/orders')
+    app.register_blueprint(client_bp, url_prefix='/')
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(driver_bp, url_prefix='/driver')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
 
     return app

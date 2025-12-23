@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+{% extends "pages_driver/base.html" %}
+{% block title %}Order details{{ order_id }}{% endblock %}
+{% block content %}
+    <h1>Order {{ vehicle_id }} details</h1>
+{% endblock %}

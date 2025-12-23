@@ -57,7 +57,9 @@ def register():
             INSERT INTO clients (name, address, phone, password)
             VALUES (?, ?, ?, ?)
         ''', (email, full_address, "", hashed_pw))
+        print("Trying to insert:", email, full_address, "", hashed_pw)
         conn.commit()
+        print("Committed successfully")
         conn.close()
 
         # redirect to login page after successful registration

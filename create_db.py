@@ -33,6 +33,12 @@ CREATE TABLE orders (
     client_id INTEGER,
     order_date TEXT NOT NULL,
     status TEXT NOT NULL,
+    pickup_address TEXT,
+    delivery_address TEXT,
+    estimated_delivery_time TEXT,
+    driver_name TEXT,
+    vehicle_id TEXT,
+    price REAL,
     FOREIGN KEY (client_id) REFERENCES clients(client_id)
 );
 
