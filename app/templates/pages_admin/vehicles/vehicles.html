@@ -1,11 +1,51 @@
 {% extends "pages_admin/base.html" %}
-{% block title %}Orders{% endblock %}
+{% block title %}Vehicles{% endblock %}
 {% block content %}
-<h1>These are current orders</h1>
-<p>There are {{ vehicle_amount }} vehicles:</p>
-{% for order in vehicle_list %}
-    <p>
-        <a href="/admin/vehicles/{{ vehicle }}">{{ vehicle }}</a>
-    </p>
-{% endfor %}
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Vehicles</h2>
+            <p class="text-muted mb-0">View and manage all vehicles</p>
+        </div>
+    </div>
+
+    {% if vehicle_amount == 0 %}
+        <div class="card text-center py-5">
+            <div class="card-body">
+                <p class="text-muted mb-3">No vehicles available</p>
+            </div>
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>License Plate</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Mileage</th>
+                        <th>Fuel Consumption</th>
+                        <th>Technical Inspection</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vehicle in vehicle_list %}
+                    <tr onclick="window.location.href='{{ url_for('admin.vehicles_by_id', vehicleid=vehicle['vehicle_id']) }}'" style="cursor:pointer;">
+                        <td>{{ vehicle['vehicle_id'] }}</td>
+                        <td>{{ vehicle['model'] }}</td>
+                        <td>{{ vehicle['year'] }}</td>
+                        <td>{{ "{:,}".format(vehicle['mileage']) }} km</td>
+                        <td>{{ "%.1f"|format(vehicle['fuel_consumption']) }} L/100km</td>
+                        <td>{{ vehicle['technical_inspection_expiry'] }}</td>
+                        <td>{{ vehicle['status']|capitalize }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+</div>
 {% endblock %}

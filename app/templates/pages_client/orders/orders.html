@@ -1,71 +1,102 @@
 {% extends "pages_client/base.html" %}
-{% block title %}Orders{% endblock %}
+{% block title %}My Orders{% endblock %}
+
 {% block content %}
 <div class="container py-4">
 
     <!-- Page header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2>My orders</h2>
+            <h2 class="mb-1">My Orders</h2>
             <p class="text-muted mb-0">See all of your orders</p>
         </div>
-        <a href="{{ url_for('client.make_order') }}" class="btn btn-primary">New order</a>
+
+        <a href="{{ url_for('client.make_order') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>
+            New order
+        </a>
     </div>
 
     {% if order_amount == 0 %}
-    <!-- No orders card -->
-    <div class="card text-center py-5">
-        <div class="card-body">
-            <i class="bi bi-box-seam display-1 text-muted mb-3"></i>
-            <p class="text-muted mb-3">There are no orders</p>
-        </div>
-    </div>
-    {% else %}
-    <!-- Orders list -->
-    <div class="row g-4">
-        {% for order in order_list %}
-        <div class="card shadow-sm cursor-pointer"
-             onclick="window.location.href='/client/orders/{{ order['order_id'] }}'">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Order {{ order['order_id'] }}</h5>
-                {% if order['status'] == 'pending' %}
-                    <span class="badge bg-secondary">Pending</span>
-                {% elif order['status'] == 'assigned' %}
-                    <span class="badge bg-info text-dark">Assigned</span>
-                {% elif order['status'] == 'in_transit' %}
-                    <span class="badge bg-primary">In transit</span>
-                {% elif order['status'] == 'delivered' %}
-                    <span class="badge bg-success">Delivered</span>
-                {% elif order['status'] == 'cancelled' %}
-                    <span class="badge bg-danger">Cancelled</span>
-                {% endif %}
-            </div>
+        <!-- No orders -->
+        <div class="card text-center py-5">
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <p class="text-muted small mb-1">From</p>
-                        <p>{{ order['pickup_address'] }}</p>
-                    </div>
-                    <div class="col-md-3">
-                        <p class="text-muted small mb-1">To</p>
-                        <p>{{ order['delivery_address'] }}</p>
-                    </div>
-                    <div class="col-md-3">
-                        <p class="text-muted small mb-1">Package</p>
-                        <p>{{ order['packageDescription'] }}</p>
-                    </div>
-                    <div class="col-md-3">
-                        <p class="text-muted small mb-1">Price</p>
-                        <p>€{{ order['price'] }}</p>
+                <i class="bi bi-box-seam display-1 text-muted mb-3"></i>
+                <p class="text-muted mb-3">You don’t have any orders yet</p>
+                <a href="{{ url_for('client.make_order') }}" class="btn btn-primary">
+                    Create your first order
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <!-- Orders list -->
+        <div class="d-flex flex-column gap-4">
+
+            {% for order in order_list %}
+            <div class="card shadow-sm order-card"
+                 role="button"
+                 onclick="window.location.href='{{ url_for('client.order_by_id', orderid=order['order_id']) }}'">
+
+                <!-- Card header -->
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Order #{{ order['order_id'] }}</h5>
+
+                    {% if order['status'] == 'pending' %}
+                        <span class="badge bg-secondary">Pending</span>
+                    {% elif order['status'] == 'assigned' %}
+                        <span class="badge bg-info text-dark">Assigned</span>
+                    {% elif order['status'] == 'in_transit' %}
+                        <span class="badge bg-primary">In transit</span>
+                    {% elif order['status'] == 'delivered' %}
+                        <span class="badge bg-success">Delivered</span>
+                    {% elif order['status'] == 'cancelled' %}
+                        <span class="badge bg-danger">Cancelled</span>
+                    {% endif %}
+                </div>
+
+                <!-- Card body -->
+                <div class="card-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-3">
+                            <p class="text-muted small mb-1">From</p>
+                            <p class="mb-0">{{ order['pickup_address'] }}</p>
+                        </div>
+
+                        <div class="col-md-3">
+                            <p class="text-muted small mb-1">To</p>
+                            <p class="mb-0">{{ order['delivery_address'] }}</p>
+                        </div>
+
+                        <div class="col-md-3">
+                            <p class="text-muted small mb-1">Package</p>
+                            <p class="mb-0">{{ order['packageDescription'] }}</p>
+                        </div>
+
+                        <div class="col-md-3">
+                            <p class="text-muted small mb-1">Price</p>
+                            <p class="mb-0">€{{ "%.2f"|format(order['price']) }}</p>
+                        </div>
+
                     </div>
                 </div>
             </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
 
-    </div>
+        </div>
     {% endif %}
 
 </div>
+
+<style>
+.order-card {
+    cursor: pointer;
+    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.order-card:hover {
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+</style>
 {% endblock %}
-{#lapa, kas parāda pasūtījumu sarakstu, ko iegūst no run.py faila tā pat kā order ammount#}

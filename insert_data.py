@@ -90,6 +90,53 @@ for order_id in range(1, 6):  # 5 sample orders
         )
 
 print("✅ Inserted 5 sample orders with random items")
+vehicle_models = ["Mercedes Sprinter", "Volvo FH", "Scania R-Series"]
+vehicle_statuses = ["active", "maintenance", "inactive"]
+
+vehicles = []
+for i, vid in enumerate(["TRK-01", "TRK-02", "TRK-03"]):
+    model = random.choice(vehicle_models)
+    year = random.randint(2015, 2023)
+    mileage = random.randint(50000, 300000)
+    fuel_consumption = round(random.uniform(8.0, 25.0), 1)
+    inspection_date = f"2025-{random.randint(1,12):02}-15"
+    status = random.choice(vehicle_statuses)
+    vehicles.append((vid, model, year, mileage, fuel_consumption, inspection_date, status))
+
+cursor.executemany("""
+INSERT OR REPLACE INTO vehicles
+(vehicle_id, model, year, mileage, fuel_consumption, technical_inspection_expiry, status)
+VALUES (?, ?, ?, ?, ?, ?, ?)
+""", vehicles)
+
+print("✅ Inserted sample vehicles")
+
+# Sample driver names, statuses and vehicles
+driver_names = ["John Smith", "Anna Johnson", "Peter Brown", "Laura White", "Mark Davis"]
+driver_statuses = ["available", "busy", "offline"]
+
+# Fetch existing vehicle IDs from vehicles table
+cursor.execute("SELECT vehicle_id FROM vehicles")
+vehicle_rows = cursor.fetchall()
+vehicle_ids = [v[0] for v in vehicle_rows]
+
+# Generate demo driver data
+drivers = []
+for i in range(5):  # 5 sample drivers
+    name = random.choice(driver_names)
+    email = f"{name.lower().replace(' ', '.')}@example.com"
+    phone = f"+371 2{random.randint(1000000, 9999999)}"
+    vehicle_id = random.choice(vehicle_ids) if vehicle_ids else None
+    hours_worked = round(random.uniform(0, 160), 1)  # monthly hours
+    status = random.choice(driver_statuses)
+    drivers.append((name, email, phone, vehicle_id, hours_worked, status))
+
+# Insert into DB
+cursor.executemany("""
+INSERT INTO drivers
+(name, email, phone, vehicle_id, hours_worked, status)
+VALUES (?, ?, ?, ?, ?, ?)
+""", drivers)
 
 conn.commit()
 conn.close()

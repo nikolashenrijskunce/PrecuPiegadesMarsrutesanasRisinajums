@@ -12,6 +12,8 @@ DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS clients;
+DROP TABLE IF EXISTS vehicles;
+DROP TABLE IF EXISTS drivers;
 
 CREATE TABLE clients (
     client_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,7 +52,28 @@ CREATE TABLE order_items (
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
+    
+CREATE TABLE vehicles (
+    vehicle_id TEXT PRIMARY KEY,
+    model TEXT,
+    year INTEGER,
+    mileage INTEGER,
+    fuel_consumption REAL,
+    technical_inspection_expiry DATE,
+    status TEXT
+);
+    
+CREATE TABLE drivers (
+    driver_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT,
+    phone TEXT,
+    vehicle_id TEXT,  -- FK uz vehicles.vehicle_id, var būt NULL, ja nav piešķirts
+    hours_worked REAL DEFAULT 0,
+    status TEXT DEFAULT 'available'  -- 'available', 'busy', 'offline'
+); 
 ''')
+
 
 conn.commit()
 conn.close()

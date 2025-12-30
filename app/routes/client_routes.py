@@ -16,7 +16,46 @@ def connect():
 
 @client_bp.route('/home')
 def home():
-    return render_template(f'{templates_path}/home.html')
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    client_id = session.get('client_id', 1)  # pagaidām demo
+
+    cursor.execute("""
+        SELECT order_id,
+               status,
+               pickup_address,
+               delivery_address,
+               estimated_delivery_time,
+               driver_name,
+               price
+        FROM orders
+        WHERE client_id = ?
+          AND status NOT IN ('delivered', 'cancelled')
+        ORDER BY order_date DESC
+        LIMIT 1
+    """, (client_id,))
+
+    row = cursor.fetchone()
+    conn.close()
+
+    current_order = None
+    if row:
+        current_order = {
+            'id': row[0],
+            'status': row[1],
+            'pickup_address': row[2],
+            'delivery_address': row[3],
+            'estimated_delivery_time': row[4],
+            'driver_name': row[5],
+            'price': row[6]
+        }
+
+    return render_template(
+        f'{templates_path}/home.html',
+        current_order=current_order
+    )
+
 
 @client_bp.route('/profile')
 def profile():
@@ -27,17 +66,14 @@ def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    client_id = 10  # Šeit vēlāk jāizmanto current_user.client_id
+    client_id = session.get('client_id', 1)  # Šeit vēlāk jāizmanto current_user.client_id
     cursor.execute("""
-                   SELECT o.order_id,
-                          o.status,
-                          o.pickup_address,
-                          o.delivery_address,
-                          o.estimated_delivery_time
-                   FROM orders o
-                   WHERE o.client_id = ?
-                   ORDER BY o.order_date DESC
-                   """, (client_id,))
+        SELECT o.order_id, o.status, o.pickup_address, o.delivery_address,
+               o.estimated_delivery_time
+        FROM orders o
+        WHERE o.client_id = ?
+        ORDER BY o.order_date DESC
+    """, (client_id,))
     rows = cursor.fetchall()
     conn.close()
 
@@ -48,11 +84,11 @@ def orders():
             'status': row[1],
             'pickup_address': row[2],
             'delivery_address': row[3],
-            'packageDescription': "Demo produkts",  # vēlāk aprēķināt no order_items + products
+            'packageDescription': "Demo product",  # vēlāk aprēķināt no order_items + products
             'price': 12.50  # vēlāk aprēķināt
         })
 
-    return render_template(f'{templates_path}/orders/orders.html', order_amount=len(order_list), order_list=order_list)
+    return render_template('{templates_path}/orders/orders.html', order_amount=len(order_list), order_list=order_list)
 
 @client_bp.route('/orders/<orderid>')
 def order_by_id(orderid):
@@ -149,7 +185,7 @@ def make_order():
 
         return redirect(url_for('client.orders'))
 
-    return render_template(f'{templates_path}/orders/make_order.html')
+    return render_template(f'pages_client/orders/make_order.html')
 
 
 # \/ so var lietot kaa piemeru, ja vajag, lai atver lapu, kurai padod specifisku informaciju FUNKCIJAA \/

@@ -1,6 +1,101 @@
 {% extends "pages_client/base.html" %}
-{% block title %}Home page{% endblock %}
+{% block title %}Home{% endblock %}
+
 {% block content %}
-    <h1>Welcome back!</h1>
+<div class="container mt-4">
+
+    <h2>Welcome back!</h2>
+    <p class="text-muted">
+        Here is the latest information about your orders
+    </p>
+
+    {% if current_order %}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Current Order</strong>
+
+                {% if current_order.status == 'pending' %}
+                    <span class="badge bg-secondary">Pending</span>
+                {% elif current_order.status == 'assigned' %}
+                    <span class="badge bg-primary">Assigned</span>
+                {% elif current_order.status == 'in_transit' %}
+                    <span class="badge bg-info">In transit</span>
+                {% elif current_order.status == 'delivered' %}
+                    <span class="badge bg-success">Delivered</span>
+                {% elif current_order.status == 'cancelled' %}
+                    <span class="badge bg-danger">Cancelled</span>
+                {% endif %}
+            </div>
+
+            <div class="card-body">
+                <p><strong>Order ID:</strong> {{ current_order.id }}</p>
+
+                <p>
+                    <strong>Pickup address:</strong><br>
+                    {{ current_order.pickup_address }}
+                </p>
+
+                <p>
+                    <strong>Delivery address:</strong><br>
+                    {{ current_order.delivery_address }}
+                </p>
+
+                <p>
+                    <strong>Estimated delivery time:</strong><br>
+                    {{ current_order.estimated_delivery_time }}
+                </p>
+
+                {% if current_order.driver_name %}
+                    <hr>
+                    <p><strong>Driver:</strong> {{ current_order.driver_name }}</p>
+                    <p><strong>Price:</strong> €{{ "%.2f"|format(current_order.price) }}</p>
+                {% endif %}
+
+                <a href="{{ url_for('client.order_by_id', orderid=current_order.id) }}"
+                   class="btn btn-primary w-100 mt-3">
+                    View details
+                </a>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h5>No active orders</h5>
+                <p class="text-muted">
+                    You currently have no active orders
+                </p>
+
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Create order</h5>
+                    <p class="text-muted">Start a new delivery</p>
+                    <a href="{{ url_for('client.make_order') }}"
+                       class="btn btn-outline-primary w-100">
+                        Start
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Order history</h5>
+                    <p class="text-muted">View your previous orders</p>
+                    <a href="{{ url_for('client.orders') }}"
+                       class="btn btn-outline-primary w-100">
+                        View
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
-{#sākuma lapa#}

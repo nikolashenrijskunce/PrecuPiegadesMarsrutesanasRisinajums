@@ -21,17 +21,18 @@ def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    client_id = 10  # Šeit vēlāk jāizmanto current_user.client_id
+    # Izvēlamies visus pasūtījumus, neatkarīgi no klienta
     cursor.execute("""
-                   SELECT o.order_id,
-                          o.status,
-                          o.pickup_address,
-                          o.delivery_address,
-                          o.estimated_delivery_time
-                   FROM orders o
-                   WHERE o.client_id = ?
-                   ORDER BY o.order_date DESC
-                   """, (client_id,))
+        SELECT o.order_id,
+               o.status,
+               o.pickup_address,
+               o.delivery_address,
+               o.estimated_delivery_time,
+               c.name
+        FROM orders o
+        LEFT JOIN clients c ON o.client_id = c.client_id
+        ORDER BY o.order_date DESC
+    """)
     rows = cursor.fetchall()
     conn.close()
 
@@ -42,11 +43,18 @@ def orders():
             'status': row[1],
             'pickup_address': row[2],
             'delivery_address': row[3],
-            'packageDescription': "Demo produkts",  # vēlāk aprēķināt no order_items + products
-            'price': 12.50  # vēlāk aprēķināt
+            'estimated_delivery_time': datetime.strptime(row[4], '%Y-%m-%d %H:%M') if row[4] else None,
+            'clientName': row[5] or 'Unknown',
+            'packageDescription': "Demo product",  # vēlāk aprēķināt no order_items + products
+            'price': 12.50,  # vēlāk aprēķināt
+            'clientName': row[5] if len(row) > 5 else '-',
+            'driverName': row[6] if len(row) > 6 else '-'
         })
 
-    return render_template(f'{templates_path}/orders/orders.html', order_amount=len(order_list), order_list=order_list)
+    return render_template(
+        f'{templates_path}/orders/orders.html',
+        order_amount=len(order_list),
+        order_list=order_list, now=datetime.now())
 
 @admin_bp.route('/orders/<orderid>')
 def order_by_id(orderid):
@@ -111,18 +119,62 @@ def order_by_id(orderid):
 
     return render_template(f'{templates_path}/orders/order_details.html', order=order)
 
+
 @admin_bp.route('/vehicles')
 def vehicles():
-    con = sqlite3.connect('database.db')
-    cur = con.cursor()
-    res = cur.execute('SELECT * FROM orders').fetchall()
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT vehicle_id, model, year, mileage, fuel_consumption, technical_inspection_expiry, status FROM vehicles")
+    rows = cursor.fetchall()
+    conn.close()
+
+    vehicle_list = []
+    for row in rows:
+        vehicle_list.append({
+            'vehicle_id': row[0],
+            'model': row[1],
+            'year': row[2],
+            'mileage': row[3],
+            'fuel_consumption': row[4],
+            'technical_inspection_expiry': row[5],
+            'status': row[6]
+        })
+
     return render_template(f'{templates_path}/vehicles/vehicles.html',
-                           order_amount=7,
-                           order_list=res)
+                           vehicle_amount=len(vehicle_list),
+                           vehicle_list=vehicle_list)
+
 
 @admin_bp.route('/vehicles/<vehicleid>')
 def vehicles_by_id(vehicleid):
-    return render_template(f'{templates_path}/vehicles/vehicle_details.html', vehicle_id=vehicleid)
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+                   SELECT vehicle_id, model, year, mileage, fuel_consumption, technical_inspection_expiry, status
+                   FROM vehicles
+                   WHERE vehicle_id = ?
+                   """, (vehicleid,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return "Vehicle not found", 404
+
+    vehicle = {
+        'vehicle_id': row[0],
+        'model': row[1],
+        'year': row[2],
+        'mileage': row[3],
+        'fuel_consumption': row[4],
+        'technical_inspection_expiry': row[5],
+        'status': row[6]
+    }
+
+    return render_template(f'{templates_path}/vehicles/vehicle_details.html', vehicle=vehicle)
+
 
 @admin_bp.route('/orders/make', methods=['GET', 'POST'])
 def make_order():
@@ -158,6 +210,34 @@ def make_order():
 
     return render_template(f'{templates_path}/orders/make_order.html')
 
+@admin_bp.route('/drivers')
+def drivers():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Fetch drivers
+    cursor.execute("""
+        SELECT d.driver_id, d.name, d.email, d.phone, d.vehicle_id, d.hours_worked, d.status,
+               v.model, v.vehicle_id
+        FROM drivers d
+        LEFT JOIN vehicles v ON d.vehicle_id = v.vehicle_id
+    """)
+    rows = cursor.fetchall()
+    conn.close()
+
+    drivers_list = []
+    for row in rows:
+        drivers_list.append({
+            'id': row[0],
+            'name': row[1],
+            'email': row[2],
+            'phone': row[3],
+            'vehicle': {'model': row[7], 'license_plate': row[8]} if row[4] else None,
+            'hours_worked': row[5] or 0,
+            'status': row[6]
+        })
+
+    return render_template('pages_admin/drivers/drivers.html', drivers=drivers_list)
 
 # \/ so var lietot kaa piemeru, ja vajag, lai atver lapu, kurai padod specifisku informaciju FUNKCIJAA \/
 
