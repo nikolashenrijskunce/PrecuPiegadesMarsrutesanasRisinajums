@@ -1,23 +1,13 @@
-Ko vel vajadzetu:
-    paroli autovaditajiem
-    uztaisit atseviskus html files autovadiatjiem un klientiem, kur katram ir piekluve pie savam lietam
-    pievienot O auth
-    transportlidzeklis gnj katram vaditajam ir pieskirts
-
-
-
-
-
 Visiem:
-    Var ielogoties kaa klients, vaditajs vai administrators
-    Var registreties kaa klients
+    Var ielogoties kaa klients, vaditajs vai administrators DONE
+    Var registreties kaa klients DONE
 Klienti:
     home:
-        aktuala informacijz par pasreizejo pasutijumu
+        aktuala informacijz par pasreizejo pasutijumu DONE
     make_order:
-        var veikt jaunu pasutijumu pa soliem\
+        var veikt jaunu pasutijumu pa soliem
         Paradas piegades cena
-    orders:
+    orders:==============================================================KATE LABO ORDERS
         Redz savu pasutijumu vesturi
         Redz pasreizejos pasutijumus
         order_details:
@@ -25,27 +15,30 @@ Klienti:
             Paradas piegades cena
     profile:
         Redz sava profila pamata informaciju kaa epastu, talruni utt
-        Var nomainit informaciju par sevi
-    Var izlogoties ara
+        Var nomainit informaciju par sevi (optional)
+    Var izlogoties ara DONE
 Vaditaji:
     home:
-        Redz darba grafiku
-        Redz nostradatas stundas?
+        Redz darba grafiku (vismaz pasreizejo datumu un laiku)
+        Redz nostradatas stundas? (optional)
         Redz savu transportlidzkeli
-    orders:
-        Redz pasutijumus
-        Redz pasutijumu sgaidamo piegades laiku
+    current order route:=======================================================EDUARDS TAISA DATUBAZI
+        Redz pasutijumus marsrutu
+        Redz pasutijumu sagaidamo piegades laiku
         Pasutijums:
             Redz karte attelotu marsrutu
             Redz sagaidamo piegades laiku
             Var izveleties transportlidzekli?
-    Var izlogoties ara
+    vehicle:====================================================================ALISE TAISA
+    Var izlogoties ara DONE
 Administrators:
+    home:
+        ?
     orders:
-        var redzet un parvaldit info par orders
+        var redzet un parvaldit info par orders DONE
         var redzet, kuri orders ir laicigi pienakusi un kuri ar nokavesanos
     drivers:
         var parvaldit un redzet infor par visiem vaditajiem
     vehicles:
-        var redzet info par transportlidzkliem kaa tehniska pase un apskates deriguma termins
+        var redzet info par transportlidzkliem kaa tehniska pase un apskates deriguma termins DONE
         nobraukta distance un degvielas izmaksas?
