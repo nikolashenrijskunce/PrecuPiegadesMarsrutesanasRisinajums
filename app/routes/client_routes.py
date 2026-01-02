@@ -8,6 +8,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DB_PATH = os.path.join(os.path.dirname(BASE_DIR), "database.db")
 templates_path = 'pages_client'
 
+# --- helpers for optional DB columns (to keep old DBs from crashing) ---
+def _orders_columns(cursor):
+    cursor.execute("PRAGMA table_info(orders)")
+    return {row[1] for row in cursor.fetchall()}  # column names
+
+def _has_cols(cursor, *cols):
+    existing = _orders_columns(cursor)
+    return all(c in existing for c in cols)
+
+
 # \/ SO NEMAINIT, JO SIS AIZVED UZ LOGIN PAGE, KAD ATVER MAJASLAPU \/
 @client_bp.route('/')
 def connect():
@@ -126,14 +136,45 @@ def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    client_id = session.get('client_id', 1)  # Šeit vēlāk jāizmanto current_user.client_id
-    cursor.execute("""
-        SELECT o.order_id, o.status, o.pickup_address, o.delivery_address,
-               o.estimated_delivery_time
-        FROM orders o
-        WHERE o.client_id = ?
-        ORDER BY o.order_date DESC
-    """, (client_id,))
+    client_id = session.get('client_id', 1)  # TODO: use logged-in client_id
+
+    # If the DB has the newer columns, use them; otherwise fall back to the legacy schema.
+    if _has_cols(cursor, 'package_description', 'package_weight', 'special_instructions'):
+        cursor.execute("""
+            SELECT
+                o.order_id,
+                o.status,
+                o.pickup_address,
+                o.delivery_address,
+                o.estimated_delivery_time,
+                COALESCE(o.package_description, GROUP_CONCAT(p.name, ', '), '') AS package_description,
+                COALESCE(o.package_weight, SUM(p.weight * oi.quantity), 0)         AS package_weight,
+                COALESCE(o.price, SUM(p.price * oi.quantity), 0)                  AS price,
+                COALESCE(o.special_instructions, '')                              AS special_instructions
+            FROM orders o
+            LEFT JOIN order_items oi ON oi.order_id = o.order_id
+            LEFT JOIN products p ON p.product_id = oi.product_id
+            WHERE o.client_id = ?
+            GROUP BY o.order_id
+            ORDER BY o.order_date DESC
+        """, (client_id,))
+    else:
+        cursor.execute("""
+            SELECT
+                o.order_id,
+                o.status,
+                o.pickup_address,
+                o.delivery_address,
+                o.estimated_delivery_time,
+                ''  AS package_description,
+                0.0 AS package_weight,
+                COALESCE(o.price, 0) AS price,
+                ''  AS special_instructions
+            FROM orders o
+            WHERE o.client_id = ?
+            ORDER BY o.order_date DESC
+        """, (client_id,))
+
     rows = cursor.fetchall()
     conn.close()
 
@@ -144,34 +185,90 @@ def orders():
             'status': row[1],
             'pickup_address': row[2],
             'delivery_address': row[3],
-            'packageDescription': "Demo product",  # vēlāk aprēķināt no order_items + products
-            'price': 12.50  # vēlāk aprēķināt
+            'estimated_delivery_time': row[4],
+            'packageDescription': row[5],
+            'packageWeight': row[6],
+            'price': row[7],
+            'specialInstructions': row[8],
         })
 
-    return render_template(f'{templates_path}/orders/orders.html', order_amount=len(order_list), order_list=order_list)
+    return render_template(f'{templates_path}/orders/orders.html',
+                           order_amount=len(order_list),
+                           order_list=order_list)
 
 @client_bp.route('/orders/<orderid>')
 def order_by_id(orderid):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # Get order info
+    if _has_cols(cursor, 'package_description', 'package_weight', 'special_instructions'):
+        cursor.execute("""
+            SELECT
+                o.order_id,
+                o.order_date,
+                o.status,
+                o.pickup_address,
+                o.delivery_address,
+                o.estimated_delivery_time,
+                o.driver_name,
+                o.vehicle_id,
+                COALESCE(o.package_description, GROUP_CONCAT(p.name, ', '), '') AS package_description,
+                COALESCE(o.package_weight, SUM(p.weight * oi.quantity), 0)         AS package_weight,
+                COALESCE(o.price, SUM(p.price * oi.quantity), 0)                  AS price,
+                COALESCE(o.special_instructions, '')                              AS special_instructions,
+                c.name  AS client_name,
+                c.phone AS client_phone,
+                c.address AS client_address
+            FROM orders o
+            LEFT JOIN order_items oi ON oi.order_id = o.order_id
+            LEFT JOIN products p ON p.product_id = oi.product_id
+            LEFT JOIN clients c ON o.client_id = c.client_id
+            WHERE o.order_id = ?
+            GROUP BY o.order_id
+        """, (orderid,))
+        order_row = cursor.fetchone()
+
+        if not order_row:
+            conn.close()
+            return "Order not found", 404
+
+        order = dict(
+            order_id=order_row[0],
+            order_date=order_row[1],
+            status=order_row[2],
+            pickupAddress=order_row[3],
+            deliveryAddress=order_row[4],
+            estimatedDeliveryTime=order_row[5],
+            driverName=order_row[6],
+            vehicleId=order_row[7],
+            packageDescription=order_row[8],
+            packageWeight=order_row[9],
+            price=order_row[10],
+            specialInstructions=order_row[11],
+            clientName=order_row[12],
+            clientPhone=order_row[13],
+            clientAddress=order_row[14],
+        )
+        conn.close()
+        return render_template(f'{templates_path}/orders/order_details.html', order=order)
+
     cursor.execute("""
-                   SELECT o.order_id,
-                          o.order_date,
-                          o.status,
-                          o.pickup_address,
-                          o.delivery_address,
-                          o.estimated_delivery_time,
-                          o.driver_name,
-                          o.vehicle_id,
-                          c.name,
-                          c.phone,
-                          c.address
-                   FROM orders o
-                            LEFT JOIN clients c ON o.client_id = c.client_id
-                   WHERE o.order_id = ?
-                   """, (orderid,))
+        SELECT o.order_id,
+               o.order_date,
+               o.status,
+               o.pickup_address,
+               o.delivery_address,
+               o.estimated_delivery_time,
+               o.driver_name,
+               o.vehicle_id,
+               c.name,
+               c.phone,
+               c.address,
+               COALESCE(o.price, 0)
+        FROM orders o
+        LEFT JOIN clients c ON o.client_id = c.client_id
+        WHERE o.order_id = ?
+    """, (orderid,))
     order_row = cursor.fetchone()
 
     if not order_row:
@@ -189,27 +286,29 @@ def order_by_id(orderid):
         vehicleId=order_row[7],
         clientName=order_row[8],
         clientPhone=order_row[9],
-        clientAddress=order_row[10]
+        clientAddress=order_row[10],
+        price=order_row[11],
+        packageDescription='',
+        packageWeight=0.0,
+        specialInstructions=''
     )
 
-    # Get products for this order
     cursor.execute("""
-                   SELECT p.name, p.weight, p.price, oi.quantity
-                   FROM order_items oi
-                            JOIN products p ON oi.product_id = p.product_id
-                   WHERE oi.order_id = ?
-                   """, (orderid,))
+        SELECT p.name, p.weight, p.price, oi.quantity
+        FROM order_items oi
+        JOIN products p ON oi.product_id = p.product_id
+        WHERE oi.order_id = ?
+    """, (orderid,))
     items = cursor.fetchall()
     conn.close()
 
-    # Calculate total weight and total price
-    total_weight = sum(item[1] * item[3] for item in items)
-    total_price = sum(item[2] * item[3] for item in items)
-    package_description = ", ".join([item[0] for item in items])
-
-    order['packageWeight'] = total_weight
-    order['packageDescription'] = package_description
-    order['price'] = total_price
+    if items:
+        total_weight = sum(item[1] * item[3] for item in items)
+        total_price = sum(item[2] * item[3] for item in items)
+        package_description = ", ".join([item[0] for item in items])
+        order['packageWeight'] = total_weight
+        order['packageDescription'] = package_description
+        order['price'] = total_price
 
     return render_template(f'{templates_path}/orders/order_details.html', order=order)
 
@@ -228,17 +327,38 @@ def make_order():
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        cursor.execute("""
-            INSERT INTO orders (client_id, order_date, status, pickup_address, delivery_address, price)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            client_id,
-            datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'pending',
-            pickup_address,
-            delivery_address,
-            price
-        ))
+        if _has_cols(cursor, 'package_description', 'package_weight', 'special_instructions'):
+            cursor.execute("""
+                INSERT INTO orders (
+                    client_id, order_date, status,
+                    pickup_address, delivery_address,
+                    package_description, package_weight,
+                    special_instructions, price
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                client_id,
+                datetime.now().strftime('%Y-%m-%d %H:%M'),
+                'pending',
+                pickup_address,
+                delivery_address,
+                package_description,
+                package_weight,
+                special_instructions,
+                price
+            ))
+        else:
+            cursor.execute("""
+                INSERT INTO orders (client_id, order_date, status, pickup_address, delivery_address, price)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                client_id,
+                datetime.now().strftime('%Y-%m-%d %H:%M'),
+                'pending',
+                pickup_address,
+                delivery_address,
+                price
+            ))
 
         conn.commit()
         conn.close()

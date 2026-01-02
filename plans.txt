@@ -8,13 +8,13 @@ Klienti:
         var veikt jaunu pasutijumu pa soliem DONE?
         Paradas piegades cena - Not sure vai šo actually vajag. Dont think ka šis ir tik relevant
     orders:==============================================================KATE LABO ORDERS
-        Redz savu pasutijumu vesturi
-        Redz pasreizejos pasutijumus
+        Redz savu pasutijumu vesturi DONE
+        Redz pasreizejos pasutijumus DONE
         order_details:
             Redz piegades laiku
-            Paradas piegades cena
+            Paradas piegades cena - laikam nevajag
     profile:
-        Redz sava profila pamata informaciju kaa epastu, talruni utt
+        Redz sava profila pamata informaciju kaa epastu, talruni utt DONE
         Var nomainit informaciju par sevi (optional)
     Var izlogoties ara DONE
 Vaditaji:
