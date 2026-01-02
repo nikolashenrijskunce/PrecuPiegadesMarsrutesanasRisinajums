@@ -5,8 +5,8 @@
 
 import json
 import urllib
-from ortools.constraint_solver import routing_enums_pb2
-from ortools.constraint_solver import pywrapcp
+#from ortools.constraint_solver import routing_enums_pb2
+#from ortools.constraint_solver import pywrapcp
 
 
 # Ievada API key un informāciju par pasūtījuma adresēm
@@ -185,3 +185,37 @@ def main():
         print_solution(data, manager, routing, solution)
     else:
         print("No solution found !")
+
+
+from datetime import datetime, timedelta
+
+def optimize_routes(orders):
+    """
+    MVP optimizācija:
+    - vienmērīgi sadala orders pa 3 driveriem
+    - piešķir ETA secīgi
+    - atgriež datus DB saglabāšanai
+    """
+
+    drivers = [
+        "John Smith",
+        "Anna Johnson",
+        "Peter Brown"
+    ]
+
+    start_time = datetime.now()
+    optimized = []
+
+    for i, order in enumerate(orders):
+        driver = drivers[i % len(drivers)]
+        eta = start_time + timedelta(minutes=15 * i)
+
+        optimized.append({
+            "order_id": order["order_id"],
+            "driver_name": driver,
+            "eta": eta.strftime("%Y-%m-%d %H:%M:%S")
+        })
+
+    return optimized
+
+

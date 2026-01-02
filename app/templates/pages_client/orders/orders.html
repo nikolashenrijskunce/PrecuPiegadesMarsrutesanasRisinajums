@@ -33,6 +33,11 @@
         <div class="d-flex flex-column gap-4">
 
             {% for order in order_list %}
+            {% set price = (order.get('price') or 0) %}
+            {% set weight = (order.get('package_weight') or order.get('packageWeight') or 0) %}
+            {% set package_desc = (order.get('package_description') or order.get('packageDescription') or "—") %}
+            {% set instructions = (order.get('special_instructions') or order.get('specialInstructions') or "") %}
+
             <div class="card shadow-sm order-card"
                  role="button"
                  onclick="window.location.href='{{ url_for('client.order_by_id', orderid=order['order_id']) }}'">
@@ -58,25 +63,37 @@
                 <div class="card-body">
                     <div class="row g-3">
 
-                        <div class="col-md-3">
+                        <div class="col-lg-4">
                             <p class="text-muted small mb-1">From</p>
                             <p class="mb-0">{{ order['pickup_address'] }}</p>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-lg-4">
                             <p class="text-muted small mb-1">To</p>
                             <p class="mb-0">{{ order['delivery_address'] }}</p>
                         </div>
 
-                        <div class="col-md-3">
-                            <p class="text-muted small mb-1">Package</p>
-                            <p class="mb-0">{{ order['packageDescription'] }}</p>
+                        <div class="col-lg-2">
+                            <p class="text-muted small mb-1">Weight</p>
+                            <p class="mb-0">{{ "%.2f"|format(weight) }} kg</p>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-lg-2">
                             <p class="text-muted small mb-1">Price</p>
-                            <p class="mb-0">€{{ "%.2f"|format(order['price']) }}</p>
+                            <p class="mb-0">€{{ "%.2f"|format(price) }}</p>
                         </div>
+
+                        <div class="col-12">
+                            <p class="text-muted small mb-1">Package</p>
+                            <p class="mb-0">{{ package_desc }}</p>
+                        </div>
+
+                        {% if instructions|trim %}
+                        <div class="col-12">
+                            <p class="text-muted small mb-1">Special instructions</p>
+                            <p class="mb-0">{{ instructions }}</p>
+                        </div>
+                        {% endif %}
 
                     </div>
                 </div>

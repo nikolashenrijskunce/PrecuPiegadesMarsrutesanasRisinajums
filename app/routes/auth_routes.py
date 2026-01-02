@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from flask_login import login_user, logout_user, login_required
 import sqlite3
 import bcrypt
@@ -18,30 +18,58 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['email']
-        password = request.form['pwd']
+        email = request.form.get("email", "").strip()
+        password = request.form.get("pwd", "")
 
-        if not verify_login(username, password):
+        if not email or not password:
+            del password
+            return redirect(url_for("auth.login"))
+
+        if not verify_login(email, password):
             # failed login -> stay on login page
             del password
             flash('Please check your login details and try again.')
             return redirect(url_for('auth.login'))
         # login success -> go to profile
 
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        user_info = cursor.execute("SELECT * FROM clients WHERE email = username").fetchone()
-        # if user_info:
-        #     user = user_info
-        # user_info = cursor.execute("SELECT * FROM drivers WHERE driver_id = user_id").fetchone()
-        # if user_info:
-        #     user = user_info
-        login_user(user_info, remember=False)
+        # conn = sqlite3.connect('database.db')
+        # cursor = conn.cursor()
+        # user_info = cursor.execute("SELECT * FROM clients WHERE email = username").fetchone()
+        # # if user_info:
+        # #     user = user_info
+        # # user_info = cursor.execute("SELECT * FROM drivers WHERE driver_id = user_id").fetchone()
+        # # if user_info:
+        # #     user = user_info
+        # login_user(user_info, remember=False)
 
         del password
-        return render_template('profile.html', user=username)
 
-    return render_template('authorization/login.html')
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT client_id, name, address, phone
+            FROM clients
+            WHERE name = ?
+        """, (email,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return redirect(url_for("auth.login"))
+
+        client_id, client_email, client_address, client_phone = row
+
+        session.clear()
+        session["role"] = "client"
+        session["client_id"] = client_id
+        session["client_email"] = client_email
+        session["client_address"] = client_address
+        session["client_phone"] = client_phone
+
+        return redirect(url_for("client.home"))
+
+    return render_template("authorization/login.html")
 
 
 # ---------------------------
@@ -68,6 +96,7 @@ def register():
         cursor = conn.cursor()
 
         # Checks if user already exists
+        #TODO: Correct email function
         user_info = cursor.execute("SELECT * FROM clients WHERE email = email").fetchone()
         if user_info:
             flash('Email address already exists')
@@ -88,12 +117,12 @@ def register():
     # display the form
     return render_template('authorization/register.html')
 
-
-@auth_bp.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('auth.login'))
+#TODO: sataisit logout
+# @auth_bp.route('/logout')
+# @login_required
+# def logout():
+#     logout_user()
+#     return redirect(url_for('auth.login'))
 
 @auth_bp.route('/termsandconditions')
 def termsandconditions():

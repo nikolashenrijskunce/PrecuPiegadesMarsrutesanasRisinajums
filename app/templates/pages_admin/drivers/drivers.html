@@ -5,41 +5,11 @@
 <div class="container py-4">
 
     <!-- Page header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2>Drivers Management</h2>
-            <p class="text-muted mb-0">View and manage all drivers</p>
-        </div>
-    </div>
-
-    <!-- Summary cards -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Total Drivers</h5>
-                    <p class="display-4">{{ drivers|length }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Available</h5>
-                    <p class="display-4">{{ drivers|selectattr('status', 'equalto', 'available')|list|length }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Busy</h5>
-                    <p class="display-4">{{ drivers|selectattr('status', 'equalto', 'busy')|list|length }}</p>
-                </div>
-            </div>
-        </div>
+    <div class="mb-4">
+        <h2>Drivers</h2>
+        <p class="text-muted mb-0">
+            Click a driver to view their individual route and assigned orders
+        </p>
     </div>
 
     <!-- Drivers table -->
@@ -47,21 +17,21 @@
         <div class="card-header">
             <h5 class="mb-0">All Drivers</h5>
         </div>
+
         <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle">
+            <table class="table table-striped table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Vehicle</th>
-                        <th>Hours Worked</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for driver in drivers %}
-                    <tr>
+                    <tr style="cursor:pointer;"
+                        onclick="window.location.href='{{ url_for('admin.driver_plan', driver_id=driver.id) }}'">
                         <td>{{ driver.name }}</td>
                         <td>{{ driver.email }}</td>
                         <td>{{ driver.phone }}</td>
@@ -69,17 +39,7 @@
                             {% if driver.vehicle %}
                                 {{ driver.vehicle.model }} ({{ driver.vehicle.license_plate }})
                             {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td>{{ "%.1f"|format(driver.hours_worked) }} h</td>
-                        <td>
-                            {% if driver.status == 'available' %}
-                                <span class="badge bg-success">Available</span>
-                            {% elif driver.status == 'busy' %}
-                                <span class="badge bg-warning text-dark">Busy</span>
-                            {% elif driver.status == 'offline' %}
-                                <span class="badge bg-secondary">Offline</span>
+                                —
                             {% endif %}
                         </td>
                     </tr>
