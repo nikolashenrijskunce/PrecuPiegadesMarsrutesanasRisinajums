@@ -59,7 +59,67 @@ def home():
 
 @client_bp.route('/profile')
 def profile():
-    return render_template(f'{templates_path}/profile.html')
+    client_id = session.get("client_id")
+    if not client_id:
+        return redirect(url_for("auth.login"))
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT client_id, name, address, phone
+        FROM clients
+        WHERE client_id = ?
+    """, (client_id,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return redirect(url_for("auth.login"))
+
+    client = {
+        'client_id': row[0],
+        'email': row[1],
+        'address': row[2],
+        'phone': row[3],
+    }
+
+    return render_template(f"{templates_path}/profile.html", client=client)
+
+@client_bp.route('/profile/edit', methods=['GET', 'POST'])
+def edit_profile():
+    client_id = session.get('client_id')
+    if not client_id:
+        return redirect(url_for('auth.login'))
+
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        new_email = request.form['email'].strip()
+        new_address = request.form['address'].strip()
+        new_phone = request.form['phone'].strip()
+
+        cur.execute("""
+            UPDATE clients
+            SET name = ?, address = ?, phone = ?
+            WHERE client_id = ?
+        """, (new_email, new_address, new_phone, client_id))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for('client.profile'))
+
+    # GET: load existing data
+    cur.execute("SELECT name, address, phone FROM clients WHERE client_id = ?", (client_id,))
+    row = cur.fetchone()
+    conn.close()
+
+    if not row:
+        return "Client not found", 404
+
+    client = {"email": row[0], "address": row[1], "phone": row[2]}
+    return render_template(f"{templates_path}/profile_edit.html", client=client)
+
 
 @client_bp.route('/orders')
 def orders():

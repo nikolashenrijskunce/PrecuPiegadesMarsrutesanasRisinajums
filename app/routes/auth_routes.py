@@ -33,26 +33,29 @@ def login():
 
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("SELECT client_id FROM clients WHERE name = ?", (email,))
+        cursor.execute("""
+            SELECT client_id, name, address, phone
+            FROM clients
+            WHERE name = ?
+        """, (email,))
+
         row = cursor.fetchone()
         conn.close()
 
         if not row:
-            session.clear()
             return redirect(url_for("auth.login"))
 
-        client_id = row[0]
+        client_id, client_email, client_address, client_phone = row
 
-        # start clean session
         session.clear()
-        session["client_id"] = client_id
-        session["client_email"] = email
         session["role"] = "client"
+        session["client_id"] = client_id
+        session["client_email"] = client_email
+        session["client_address"] = client_address
+        session["client_phone"] = client_phone
 
-        # go to client home (recommended instead of rendering profile.html directly)
         return redirect(url_for("client.home"))
 
-        # GET -> show login page
     return render_template("authorization/login.html")
 
 
