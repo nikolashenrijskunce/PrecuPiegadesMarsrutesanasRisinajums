@@ -4,68 +4,298 @@
 {% block content %}
 <div class="container py-4">
 
-    <!-- Page header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h2>All Orders</h2>
-            <p class="text-muted mb-0">View and manage all orders</p>
+            <p class="text-muted mb-0">Balanced + geographic route optimization across drivers</p>
         </div>
         <a href="{{ url_for('admin.make_order') }}" class="btn btn-primary">New Order</a>
     </div>
 
-    {% if order_amount == 0 %}
-    <!-- No orders -->
-    <div class="card text-center py-5">
-        <div class="card-body">
-            <i class="bi bi-box-seam display-1 text-muted mb-3"></i>
-            <p class="text-muted mb-3">There are no orders</p>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Optimized Routes</h5>
+        </div>
+        <div class="card-body p-0" style="height:420px;">
+            <div id="map" style="width:100%; height:100%;"></div>
+        </div>
+        <div class="card-footer small text-muted">
+            Orders are assigned using <strong>balanced geographic clustering</strong> (similar routes + similar order counts).
         </div>
     </div>
-    {% else %}
-    <!-- Orders table -->
+
     <div class="table-responsive">
         <table class="table table-striped table-hover align-middle">
             <thead class="table-light">
                 <tr>
                     <th>ID</th>
-                    <th>Client</th>
-                    <th>From</th>
                     <th>To</th>
-                    <th>Status</th>
                     <th>Driver</th>
-                    <th>Price (€)</th>
-                    <th>Estimated Delivery</th>
+                    <th>Estimated delivery</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in order_list %}
-                <tr style="cursor:pointer;" onclick="window.location.href='{{ url_for('admin.order_by_id', orderid=order['order_id']) }}'">
+                <tr data-address="{{ order['delivery_address'] }}">
                     <td>{{ order['order_id'] }}</td>
-                    <td>{{ order['clientName'] or '-' }}</td>
-                    <td>{{ order['pickup_address'] }}</td>
                     <td>{{ order['delivery_address'] }}</td>
-                    <td>
-                        {% if order['status'] == 'pending' %}
-                            <span class="badge bg-secondary">Pending</span>
-                        {% elif order['status'] == 'assigned' %}
-                            <span class="badge bg-info text-dark">Assigned</span>
-                        {% elif order['status'] == 'in_transit' %}
-                            <span class="badge bg-primary">In Transit</span>
-                        {% elif order['status'] == 'delivered' %}
-                            <span class="badge bg-success">Delivered</span>
-                        {% elif order['status'] == 'cancelled' %}
-                            <span class="badge bg-danger">Cancelled</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ order['driverName'] or '-' }}</td>
-                    <td>{{ "%.2f"|format(order['price']) }}</td>
-                    <td>{{ order['estimated_delivery_time'] if order['estimated_delivery_time'] else '-' }}</td>
+                    <td class="driver-cell">—</td>
+                    <td class="eta-cell">—</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    {% endif %}
 
 </div>
+
+<script>
+/* ================= CONFIG ================= */
+const START_ADDRESS = "Zunda krastmala, Riga";
+
+const DRIVERS = [
+    { id: 1, name: "John Smith",  color: "#0d6efd" },
+    { id: 2, name: "Anna Johnson", color: "#dc3545" },
+    { id: 5, name: "Peter Brown", color: "#198754" }
+];
+
+const RAW_ADDRESSES = {{ order_list | map(attribute="delivery_address") | list | tojson }};
+
+let map, geocoder;
+
+/* ================= GEO HELPERS ================= */
+function dist2(a, b) {
+    const dx = a.lat - b.lat;
+    const dy = a.lng - b.lng;
+    return dx*dx + dy*dy;
+}
+
+function meanPoint(points) {
+    let lat = 0, lng = 0;
+    points.forEach(p => { lat += p.lat; lng += p.lng; });
+    return { lat: lat / points.length, lng: lng / points.length };
+}
+
+/* Initialize centroids far apart (more stable than random) */
+function initCentroids(points, k) {
+    const centroids = [];
+    if (!points.length) return centroids;
+
+    centroids.push({ lat: points[0].lat, lng: points[0].lng });
+
+    while (centroids.length < k) {
+        let bestP = null;
+        let bestScore = -1;
+
+        points.forEach(p => {
+            let minD = Infinity;
+            centroids.forEach(c => {
+                const d = dist2(p, c);
+                if (d < minD) minD = d;
+            });
+            if (minD > bestScore) {
+                bestScore = minD;
+                bestP = p;
+            }
+        });
+
+        if (!bestP) break;
+        centroids.push({ lat: bestP.lat, lng: bestP.lng });
+    }
+
+    while (centroids.length < k) {
+        centroids.push({ lat: centroids[centroids.length-1].lat, lng: centroids[centroids.length-1].lng });
+    }
+
+    return centroids;
+}
+
+/* ================= BALANCED CLUSTERING =================
+   Goal: compact clusters AND similar sizes.
+   Method:
+   - start with centroids
+   - each point prefers nearest centroid
+   - assign greedily with capacity constraints
+   - recompute centroids and repeat a few times
+*/
+function balancedKMeans(points, k, iters = 8) {
+    if (!points.length) return Array.from({ length: k }, () => []);
+
+    const n = points.length;
+    const cap = Math.ceil(n / k);   // max per driver (balanced)
+    // Example: 10 orders, 3 drivers => cap=4 => sizes 4/3/3
+
+    let centroids = initCentroids(points, k);
+
+    for (let iter = 0; iter < iters; iter++) {
+        const clusters = Array.from({ length: k }, () => []);
+        const sizes = Array.from({ length: k }, () => 0);
+
+        // For each point, compute preference list of centroids by distance
+        const prefs = points.map(p => {
+            const dists = centroids.map((c, idx) => ({ idx, d: dist2(p, c) }));
+            dists.sort((a,b) => a.d - b.d);
+            return dists.map(x => x.idx);
+        });
+
+        // Greedy assignment: assign points in "hardest first" order (those with strong preference)
+        const order = points.map((p, i) => {
+            const best = dist2(p, centroids[prefs[i][0]]);
+            const second = dist2(p, centroids[prefs[i][1] ?? prefs[i][0]]);
+            return { i, margin: second - best }; // bigger margin = more "obvious" assignment
+        }).sort((a,b) => b.margin - a.margin);
+
+        order.forEach(({ i }) => {
+            const p = points[i];
+            const prefList = prefs[i];
+
+            // choose first centroid that has free capacity
+            let assigned = null;
+            for (const cIdx of prefList) {
+                if (sizes[cIdx] < cap) { assigned = cIdx; break; }
+            }
+            // if all full (rare), just put in smallest cluster
+            if (assigned === null) {
+                assigned = sizes.indexOf(Math.min(...sizes));
+            }
+
+            clusters[assigned].push(p);
+            sizes[assigned]++;
+        });
+
+        // recompute centroids (skip empty)
+        centroids = centroids.map((c, idx) => {
+            if (!clusters[idx].length) return c;
+            return meanPoint(clusters[idx]);
+        });
+
+        // continue next iteration
+        // final clusters after last iteration:
+        if (iter === iters - 1) return clusters;
+    }
+}
+
+/* ================= ROUTE ORDERING (per driver) ================= */
+function nearestNeighbor(matrix) {
+    const n = matrix.length;
+    const visited = new Set([0]);
+    const order = [0];
+
+    while (order.length < n) {
+        const last = order[order.length - 1];
+        let best = null, bestT = Infinity;
+
+        for (let i = 0; i < n; i++) {
+            if (!visited.has(i) && matrix[last][i] < bestT) {
+                bestT = matrix[last][i];
+                best = i;
+            }
+        }
+        visited.add(best);
+        order.push(best);
+    }
+    return order;
+}
+
+/* ================= MAIN FLOW ================= */
+function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 12,
+        center: { lat: 56.95, lng: 24.1 }
+    });
+    geocoder = new google.maps.Geocoder();
+    geocodeAll();
+}
+
+function geocodeAll() {
+    const points = [];
+    let pending = RAW_ADDRESSES.length;
+
+    RAW_ADDRESSES.forEach(addr => {
+        geocoder.geocode({ address: addr }, (res, status) => {
+            if (status === "OK" && res && res[0]) {
+                const loc = res[0].geometry.location;
+                points.push({ address: addr, lat: loc.lat(), lng: loc.lng() });
+            }
+            pending--;
+            if (pending === 0) assignDriversAndBuildRoutes(points);
+        });
+    });
+}
+
+function assignDriversAndBuildRoutes(points) {
+    const k = DRIVERS.length;
+    const clusters = balancedKMeans(points, k, 8);
+
+    clusters.forEach((cluster, driverIdx) => {
+        if (!cluster || !cluster.length) return;
+        buildRoute(cluster, driverIdx);
+    });
+}
+
+function buildRoute(clusterPoints, driverIdx) {
+    const stops = [START_ADDRESS, ...clusterPoints.map(p => p.address)];
+
+    const dm = new google.maps.DistanceMatrixService();
+    dm.getDistanceMatrix({
+        origins: stops,
+        destinations: stops,
+        travelMode: google.maps.TravelMode.DRIVING
+    }, (res, status) => {
+        if (status !== "OK" || !res.rows) return;
+
+        const matrix = res.rows.map(r =>
+            r.elements.map(e => (e && e.status === "OK") ? e.duration.value : 1e15)
+        );
+
+        const order = nearestNeighbor(matrix);
+        drawRoute(stops, order, driverIdx);
+    });
+}
+
+function drawRoute(stops, order, driverIdx) {
+    const ds = new google.maps.DirectionsService();
+    const dr = new google.maps.DirectionsRenderer({
+        map,
+        polylineOptions: {
+            strokeColor: DRIVERS[driverIdx].color,
+            strokeWeight: 5
+        }
+    });
+
+    const waypoints = order.slice(1, -1).map(i => ({ location: stops[i], stopover: true }));
+    let currentTime = new Date();
+
+    ds.route({
+        origin: stops[order[0]],
+        destination: stops[order[order.length - 1]],
+        waypoints,
+        travelMode: google.maps.TravelMode.DRIVING
+    }, (res, status) => {
+        if (status !== "OK") return;
+
+        dr.setDirections(res);
+
+        res.routes[0].legs.forEach(leg => {
+            currentTime = new Date(currentTime.getTime() + leg.duration.value * 1000);
+            const eta = currentTime.toLocaleString();
+
+            document.querySelectorAll("tr[data-address]").forEach(row => {
+                const addr = row.dataset.address;
+                if (addr && leg.end_address.includes(addr.split(",")[0])) {
+                    row.querySelector(".driver-cell").textContent = DRIVERS[driverIdx].name;
+                    row.querySelector(".eta-cell").textContent = eta;
+                }
+            });
+        });
+    });
+}
+</script>
+
+<!-- 🔴 GOOGLE API KEY ŠEIT 🔴 -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=(TE_RAKSTIT_ATSLEGU)&callback=initMap"
+  async defer>
+</script>
+
 {% endblock %}

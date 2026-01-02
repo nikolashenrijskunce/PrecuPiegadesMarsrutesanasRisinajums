@@ -1,0 +1,120 @@
+{% extends "pages_admin/base.html" %}
+{% block title %}Driver plan{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>{{ driver.name }}</h2>
+            <p class="text-muted mb-0">
+                {{ driver.email }} · {{ driver.phone }}
+            </p>
+        </div>
+        <a href="{{ url_for('admin.drivers') }}" class="btn btn-outline-secondary">
+            ← Back to drivers
+        </a>
+    </div>
+
+    <!-- MAP -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Optimized Delivery Route</h5>
+        </div>
+        <div class="card-body p-0">
+            <div id="map" style="height:400px; width:100%;"></div>
+        </div>
+    </div>
+
+    <!-- ASSIGNED ORDERS -->
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">Assigned Orders</h5>
+        </div>
+
+        {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Delivery address</th>
+                        <th>Estimated delivery</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.order_id }}</td>
+                        <td>{{ order.address }}</td>
+                        <td>{{ order.eta }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card-body text-muted">
+            No orders assigned to this driver.
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- GOOGLE MAPS + ROUTE -->
+<script>
+    const warehouseAddress = "Zunda krastmala, Riga";
+
+    const orders = [
+        {% for order in orders %}
+        {
+            address: "{{ order.address | escape }}"
+        },
+        {% endfor %}
+    ];
+
+    function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 12,
+            center: { lat: 56.9496, lng: 24.1052 } // Riga
+        });
+
+        if (orders.length === 0) return;
+
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({
+            map: map
+        });
+
+        const waypoints = orders.map(o => ({
+            location: o.address,
+            stopover: true
+        }));
+
+        directionsService.route(
+            {
+                origin: warehouseAddress,
+                destination: warehouseAddress,
+                waypoints: waypoints,
+                optimizeWaypoints: true,
+                travelMode: google.maps.TravelMode.DRIVING
+            },
+            (result, status) => {
+                if (status === "OK") {
+                    directionsRenderer.setDirections(result);
+                } else {
+                    console.error("Directions request failed:", status);
+                }
+            }
+        );
+    }
+</script>
+
+<!-- 🔴 GOOGLE API KEY ŠEIT 🔴 -->
+<script async
+    src="https://maps.googleapis.com/maps/api/js?key=(TE_RAKSTIT_ATSLEGU)&callback=initMap">
+</script>
+
+{% endblock %}
