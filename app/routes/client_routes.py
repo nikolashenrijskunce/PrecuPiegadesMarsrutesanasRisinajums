@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session
+from flask_login import login_required, current_user
 import sqlite3
 import os
 from datetime import datetime
@@ -15,11 +16,12 @@ def connect():
 # /\ SO NEMAINIT, JO SIS AIZVED UZ LOGIN PAGE, KAD ATVER MAJASLAPU /\
 
 @client_bp.route('/home')
+@login_required
 def home():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    client_id = session.get('client_id', 1)  # pagaidām demo
+    client_id = current_user.id  # pagaidām demo
 
     cursor.execute("""
         SELECT order_id,
@@ -58,10 +60,12 @@ def home():
 
 
 @client_bp.route('/profile')
+@login_required
 def profile():
     return render_template(f'{templates_path}/profile.html')
 
 @client_bp.route('/orders')
+@login_required
 def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -91,6 +95,7 @@ def orders():
     return render_template('{templates_path}/orders/orders.html', order_amount=len(order_list), order_list=order_list)
 
 @client_bp.route('/orders/<orderid>')
+@login_required
 def order_by_id(orderid):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -154,6 +159,7 @@ def order_by_id(orderid):
     return render_template(f'{templates_path}/orders/order_details.html', order=order)
 
 @client_bp.route('/orders/make', methods=['GET', 'POST'])
+@login_required
 def make_order():
     if request.method == 'POST':
         client_id = session.get('client_id')  # jābūt ielogotam

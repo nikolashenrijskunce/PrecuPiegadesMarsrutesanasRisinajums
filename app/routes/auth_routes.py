@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_user, logout_user, login_required
 import sqlite3
 import bcrypt
 from app.utils.security import verify_login
@@ -23,8 +24,20 @@ def login():
         if not verify_login(username, password):
             # failed login -> stay on login page
             del password
+            flash('Please check your login details and try again.')
             return redirect(url_for('auth.login'))
         # login success -> go to profile
+
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        user_info = cursor.execute("SELECT * FROM clients WHERE email = username").fetchone()
+        # if user_info:
+        #     user = user_info
+        # user_info = cursor.execute("SELECT * FROM drivers WHERE driver_id = user_id").fetchone()
+        # if user_info:
+        #     user = user_info
+        login_user(user_info, remember=False)
+
         del password
         return render_template('profile.html', user=username)
 
@@ -53,6 +66,13 @@ def register():
         # insert into clients table
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
+
+        # Checks if user already exists
+        user_info = cursor.execute("SELECT * FROM clients WHERE email = email").fetchone()
+        if user_info:
+            flash('Email address already exists')
+            return redirect(url_for('auth.register'))
+
         cursor.execute('''
             INSERT INTO clients (name, address, phone, password)
             VALUES (?, ?, ?, ?)
@@ -67,6 +87,13 @@ def register():
 
     # display the form
     return render_template('authorization/register.html')
+
+
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))
 
 @auth_bp.route('/termsandconditions')
 def termsandconditions():
