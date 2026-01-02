@@ -5,8 +5,8 @@ Klienti:
     home:
         aktuala informacijz par pasreizejo pasutijumu DONE
     make_order:
-        var veikt jaunu pasutijumu pa soliem
-        Paradas piegades cena
+        var veikt jaunu pasutijumu pa soliem DONE?
+        Paradas piegades cena - Not sure vai šo actually vajag. Dont think ka šis ir tik relevant
     orders:==============================================================KATE LABO ORDERS
         Redz savu pasutijumu vesturi
         Redz pasreizejos pasutijumus
@@ -38,7 +38,7 @@ Administrators:
         var redzet un parvaldit info par orders DONE
         var redzet, kuri orders ir laicigi pienakusi un kuri ar nokavesanos
     drivers:
-        var parvaldit un redzet infor par visiem vaditajiem
+        var parvaldit un redzet infor par visiem vaditajiem DONE?
     vehicles:
         var redzet info par transportlidzkliem kaa tehniska pase un apskates deriguma termins DONE
         nobraukta distance un degvielas izmaksas?

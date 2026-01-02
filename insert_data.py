@@ -60,34 +60,98 @@ delivery_addresses = [
 driver_names = ["Jānis B.", "Anna K.", "Pēteris S."]
 vehicle_ids = ["TRK-01", "TRK-02", "TRK-03"]
 
-for order_id in range(1, 6):  # 5 sample orders
-    client_id = random.randint(1, 50)
-    order_date = "2025-11-05"
-    status = random.choice(["pending", "assigned", "in_transit", "delivered", "cancelled"])
-    pickup_address = random.choice(pickup_addresses)
-    delivery_address = random.choice(delivery_addresses)
-    estimated_delivery_time = "2025-11-06 14:00"
-    driver_name = random.choice(driver_names)
-    vehicle_id = random.choice(vehicle_ids)
-    price = round(random.uniform(25, 1500), 2)
-    cursor.execute("""
-                   INSERT INTO orders
-                   (client_id, order_date, status, pickup_address, delivery_address, estimated_delivery_time,
-                    driver_name, vehicle_id, price)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                   """, (client_id, order_date, status, pickup_address, delivery_address, estimated_delivery_time,
-                         driver_name, vehicle_id, price))
+#for order_id in range(1, 6):  # 5 sample orders
+#    client_id = random.randint(1, 50)
+#    order_date = "2025-11-05"
+#    status = random.choice(["pending", "assigned", "in_transit", "delivered", "cancelled"])
+#    pickup_address = random.choice(pickup_addresses)
+#    delivery_address = random.choice(delivery_addresses)
+#    estimated_delivery_time = "2025-11-06 14:00"
+#    driver_name = random.choice(driver_names)
+#    vehicle_id = random.choice(vehicle_ids)
+#    price = round(random.uniform(25, 1500), 2)
+#    cursor.execute("""
+#                   INSERT INTO orders
+#                   (client_id, order_date, status, pickup_address, delivery_address, estimated_delivery_time,
+#                    driver_name, vehicle_id, price)
+#                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+#                   """, (client_id, order_date, status, pickup_address, delivery_address, estimated_delivery_time,
+#                         driver_name, vehicle_id, price))
 
-    new_order_id = cursor.lastrowid
+#    new_order_id = cursor.lastrowid
 
     # Add random order items
-    for _ in range(random.randint(1, 4)):
-        product_id = random.randint(1, 100)
-        quantity = random.randint(1, 5)
-        cursor.execute(
-            'INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?)',
-            (new_order_id, product_id, quantity)
-        )
+#    for _ in range(random.randint(1, 4)):
+#        product_id = random.randint(1, 100)
+#        quantity = random.randint(1, 5)
+#        cursor.execute(
+#            'INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?)',
+#            (new_order_id, product_id, quantity)
+#        )
+
+# Manually insert ONE order
+client_id = 1
+order_date = "2026-01-01"
+status = "assigned"
+pickup_address = "Ķīpsalas iela 6a, Kurzemes rajons, Rīga, LV-1048"
+delivery_address = "Pils laukums 3, Centra rajons, Rīga, LV-1050"
+estimated_delivery_time = "2026-01-02 15:00"
+driver_name = "Jānis B."
+vehicle_id = "TRK-01"
+price = 120.50
+
+cursor.execute("""
+    INSERT INTO orders
+    (client_id, order_date, status, pickup_address, delivery_address,
+     estimated_delivery_time, driver_name, vehicle_id, price)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+""", (
+    client_id,
+    order_date,
+    status,
+    pickup_address,
+    delivery_address,
+    estimated_delivery_time,
+    driver_name,
+    vehicle_id,
+    price
+))
+
+order_id = cursor.lastrowid
+
+
+client_id = 1
+order_date = "2026-01-01"
+status = "assigned"
+pickup_address = "Ķīpsalas iela 6a, Kurzemes rajons, Rīga, LV-1048"
+delivery_address = "Pils laukums 3, Centra rajons, Rīga, LV-1050"
+estimated_delivery_time = "2026-01-02 15:00"
+driver_name = "Jānis B."
+vehicle_id = "TRK-01"
+price = 120.50
+
+cursor.execute("""
+    INSERT INTO orders
+    (client_id, order_date, status, pickup_address, delivery_address,
+     estimated_delivery_time, driver_name, vehicle_id, price)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+""", (
+    client_id,
+    order_date,
+    status,
+    pickup_address,
+    delivery_address,
+    estimated_delivery_time,
+    driver_name,
+    vehicle_id,
+    price
+))
+
+order_id = cursor.lastrowid
+
+
+
+
 
 print("✅ Inserted 5 sample orders with random items")
 vehicle_models = ["Mercedes Sprinter", "Volvo FH", "Scania R-Series"]
