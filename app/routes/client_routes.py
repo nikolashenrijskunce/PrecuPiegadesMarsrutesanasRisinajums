@@ -88,7 +88,7 @@ def orders():
             'price': 12.50  # vēlāk aprēķināt
         })
 
-    return render_template('{templates_path}/orders/orders.html', order_amount=len(order_list), order_list=order_list)
+    return render_template(f'{templates_path}/orders/orders.html', order_amount=len(order_list), order_list=order_list)
 
 @client_bp.route('/orders/<orderid>')
 def order_by_id(orderid):

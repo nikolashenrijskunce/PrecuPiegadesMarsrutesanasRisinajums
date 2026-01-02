@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, session
 import sqlite3
 import bcrypt
 from app.utils.security import verify_login
@@ -17,18 +17,43 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['email']
-        password = request.form['pwd']
+        email = request.form.get("email", "").strip()
+        password = request.form.get("pwd", "")
 
-        if not verify_login(username, password):
+        if not email or not password:
+            del password
+            return redirect(url_for("auth.login"))
+
+        if not verify_login(email, password):
             # failed login -> stay on login page
             del password
             return redirect(url_for('auth.login'))
         # login success -> go to profile
         del password
-        return render_template('profile.html', user=username)
 
-    return render_template('authorization/login.html')
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT client_id FROM clients WHERE name = ?", (email,))
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            session.clear()
+            return redirect(url_for("auth.login"))
+
+        client_id = row[0]
+
+        # start clean session
+        session.clear()
+        session["client_id"] = client_id
+        session["client_email"] = email
+        session["role"] = "client"
+
+        # go to client home (recommended instead of rendering profile.html directly)
+        return redirect(url_for("client.home"))
+
+        # GET -> show login page
+    return render_template("authorization/login.html")
 
 
 # ---------------------------
