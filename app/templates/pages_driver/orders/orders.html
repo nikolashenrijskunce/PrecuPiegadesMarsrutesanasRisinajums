@@ -1,62 +1,111 @@
 {% extends "pages_driver/base.html" %}
 {% block title %}Orders{% endblock %}
+
 {% block content %}
 <div class="container py-4">
 
-    {% if order_amount == 0 %}
-    <!-- No orders card -->
-    <div class="card text-center py-5">
-        <div class="card-body">
-            <i class="bi bi-box-seam display-1 text-muted mb-3"></i>
-            <p class="text-muted mb-3">There are no orders</p>
-        </div>
+    <!-- Header -->
+    <div class="mb-4">
+        <h2>Orders</h2>
+        <p class="text-muted">
+            Your assigned and available orders
+        </p>
     </div>
-    {% else %}
-    <!-- Orders list -->
-    <div class="row g-4">
-        {% for order in order_list %}
-        <div class="card shadow-sm cursor-pointer"
-             onclick="window.location.href='/driver/orders/{{ order['order_id'] }}'">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Order {{ order['order_id'] }}</h5>
-                {% if order['status'] == 'pending' %}
-                    <span class="badge bg-secondary">Pending</span>
-                {% elif order['status'] == 'assigned' %}
-                    <span class="badge bg-info text-dark">Assigned</span>
-                {% elif order['status'] == 'in_transit' %}
-                    <span class="badge bg-primary">In transit</span>
-                {% elif order['status'] == 'delivered' %}
-                    <span class="badge bg-success">Delivered</span>
-                {% elif order['status'] == 'cancelled' %}
-                    <span class="badge bg-danger">Cancelled</span>
-                {% endif %}
-            </div>
+
+    {% if order_amount == 0 %}
+        <!-- No orders -->
+        <div class="card text-center py-5">
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <p class="text-muted small mb-1">From</p>
-                        <p>{{ order['pickup_address'] }}</p>
+                <i class="bi bi-box-seam display-1 text-muted mb-3"></i>
+                <p class="text-muted mb-3">No orders available</p>
+            </div>
+        </div>
+    {% else %}
+
+        <!-- Orders list -->
+        <div class="row g-4">
+            {% for order in order_list %}
+            <div class="col-12">
+                <div class="card shadow-sm hover-shadow cursor-pointer"
+                     onclick="window.location.href='/driver/orders/{{ order.order_id }}'">
+
+                    <!-- Card header -->
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Order #{{ order.order_id }}</strong>
+                            {% if order.client_name %}
+                                <div class="text-muted small">
+                                    Client: {{ order.client_name }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if order.status == 'pending' %}
+                            <span class="badge bg-secondary">Pending</span>
+                        {% elif order.status == 'assigned' %}
+                            <span class="badge bg-info text-dark">Assigned</span>
+                        {% elif order.status == 'in_transit' %}
+                            <span class="badge bg-primary">In transit</span>
+                        {% elif order.status == 'delivered' %}
+                            <span class="badge bg-success">Delivered</span>
+                        {% elif order.status == 'cancelled' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                        {% endif %}
                     </div>
-                    <div class="col-md-3">
-                        <p class="text-muted small mb-1">To</p>
-                        <p>{{ order['delivery_address'] }}</p>
-                    </div>
-                    <div class="col-md-3">
-                        <p class="text-muted small mb-1">Package</p>
-                        <p>{{ order['packageDescription'] }}</p>
-                    </div>
-                    <div class="col-md-3">
-                        <p class="text-muted small mb-1">Price</p>
-                        <p>€{{ order['price'] }}</p>
+
+                    <!-- Card body -->
+                    <div class="card-body">
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 d-flex gap-2">
+                                <i class="bi bi-geo-alt text-muted"></i>
+                                <div>
+                                    <div class="text-muted small">From</div>
+                                    <div>{{ order.pickup_address }}</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 d-flex gap-2">
+                                <i class="bi bi-geo-alt-fill text-muted"></i>
+                                <div>
+                                    <div class="text-muted small">To</div>
+                                    <div>{{ order.delivery_address }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 d-flex gap-2">
+                                <i class="bi bi-box-seam text-muted"></i>
+                                <div class="small">
+                                    {{ order.packageDescription }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 d-flex gap-2">
+                                <i class="bi bi-clock text-muted"></i>
+                                <div class="small">
+                                    {{ order.estimated_delivery_time }}
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
 
-    </div>
     {% endif %}
-
 </div>
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+        transition: box-shadow 0.2s ease-in-out;
+    }
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>
 {% endblock %}
-{#lapa, kas parāda pasūtījumu sarakstu, ko iegūst no run.py faila tā pat kā order ammount#}

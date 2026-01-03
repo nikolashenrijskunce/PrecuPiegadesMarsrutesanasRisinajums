@@ -1,6 +1,84 @@
 {% extends "pages_driver/base.html" %}
-{% block title %}Home page{% endblock %}
+{% block title %}Driver Home{% endblock %}
+
 {% block content %}
-    <h1>Welcome back!</h1>
+<div class="container mt-4">
+
+    <!-- Welcome -->
+    <div class="mb-4">
+        <h2>Welcome, {{ driver.name }}!</h2>
+        <p class="text-muted">Your work overview</p>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Hours worked</p>
+                    <h3>{{ driver.hours_worked }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Active orders</p>
+                    <h3>{{ active_orders }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Completed today</p>
+                    <h3>{{ completed_today }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicle -->
+    {% if vehicle %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>My vehicle</strong>
+        </div>
+        <div class="card-body">
+            <p class="mb-1"><strong>{{ vehicle.model }}</strong></p>
+            <p class="text-muted">License plate: {{ vehicle.vehicle_id }}</p>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <small class="text-muted">Mileage</small>
+                    <p>{{ vehicle.mileage }} km</p>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted">Inspection valid until</small>
+                    <p>{{ vehicle.inspection_expiry }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Schedule -->
+    <div class="card">
+        <div class="card-header">
+            <strong>Work schedule</strong>
+            <div class="text-muted small">This week</div>
+        </div>
+        <div class="card-body">
+            {% for day, time in schedule.items() %}
+            <div class="d-flex justify-content-between bg-light rounded p-2 mb-2">
+                <span>{{ day }}</span>
+                <span class="text-muted">{{ time }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
 {% endblock %}
-{#sākuma lapa#}
