@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 import sqlite3
 import os
 from datetime import datetime
+from app.utils.user_model import User
 
 client_bp = Blueprint('client', __name__)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -31,7 +32,8 @@ def home():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    client_id = current_user.id  # pagaidām demo
+    # client_id = session.get('client_id', 1)
+    client_id = current_user.id
 
     cursor.execute("""
         SELECT order_id,
@@ -72,9 +74,9 @@ def home():
 @client_bp.route('/profile')
 @login_required
 def profile():
-    client_id = session.get("client_id")
-    if not client_id:
-        return redirect(url_for("auth.login"))
+    client_id = current_user.id
+    # if not client_id:
+    #     return redirect(url_for("auth.login"))
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -99,10 +101,11 @@ def profile():
     return render_template(f"{templates_path}/profile.html", client=client)
 
 @client_bp.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
 def edit_profile():
-    client_id = session.get('client_id')
-    if not client_id:
-        return redirect(url_for('auth.login'))
+    client_id = current_user.id
+    # if not client_id:
+    #     return redirect(url_for('auth.login'))
 
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
@@ -140,7 +143,8 @@ def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    client_id = session.get('client_id', 1)  # TODO: use logged-in client_id
+    # client_id = session.get('client_id', 1)  # TODO: use logged-in client_id
+    client_id = current_user.id
 
     # If the DB has the newer columns, use them; otherwise fall back to the legacy schema.
     if _has_cols(cursor, 'package_description', 'package_weight', 'special_instructions'):
@@ -321,7 +325,8 @@ def order_by_id(orderid):
 @login_required
 def make_order():
     if request.method == 'POST':
-        client_id = session.get('client_id')  # jābūt ielogotam
+        # client_id = session.get('client_id')  # jābūt ielogotam
+        client_id = current_user.id
 
         pickup_address = request.form['pickup_address']
         delivery_address = request.form['delivery_address']

@@ -10,9 +10,15 @@
         border-radius: 10px;
     }
 </style>
-
 <div class="container">
     <form class="row g-3" id="formBlock" method="POST" action="{{ url_for('auth.register') }}">
+            {% with messages = get_flashed_messages()%}
+            {% if messages%}
+                {% for message in messages%}
+                <p style="color:red;">{{message}}</p>
+                {%endfor%}
+                {%endif%}
+                {%endwith%}
         <div class="col-md-6">
             <label for="inputEmail4" class="form-label">Email</label>
             <input type="email" class="form-control" id="inputEmail4" name="email" required>

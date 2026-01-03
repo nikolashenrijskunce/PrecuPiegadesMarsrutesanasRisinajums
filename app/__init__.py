@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 import sqlite3
 import os
+from app.utils.user_model import User
 
 bcrypt = Bcrypt()
 
@@ -24,12 +25,13 @@ def create_app():
     def load_user(user_id):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        user_info = cursor.execute("SELECT * FROM clients WHERE client_id = user_id").fetchone()
+        user_info = cursor.execute(f"SELECT client_id, name, address, phone, password FROM clients WHERE client_id = '{user_id}'").fetchone()
+        conn.close()
         if user_info:
-            return user_info
-        user_info = cursor.execute("SELECT * FROM drivers WHERE driver_id = user_id").fetchone()
-        if user_info:
-            return user_info
+            return User(user_info[0], user_info[1], user_info[2], user_info[3], user_info[4])
+        # user_info = cursor.execute(f"SELECT driver_id, name, email, phone, password FROM drivers WHERE driver_id = '{user_id}'").fetchone()
+        # if user_info:
+        #     return user_info
         return None
 
 
