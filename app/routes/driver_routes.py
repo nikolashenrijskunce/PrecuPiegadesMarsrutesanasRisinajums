@@ -10,43 +10,196 @@ templates_path = 'pages_driver'
 
 @driver_bp.route('/home')
 def home():
-    return render_template(f'{templates_path}/home.html')
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
 
-@driver_bp.route('/profile')
+    driver_id = 5  # vēlāk: current_user.driver_id
+
+    # --- Driver ---
+    cursor.execute("""
+        SELECT name, hours_worked, vehicle_id
+        FROM drivers
+        WHERE driver_id = ?
+    """, (driver_id,))
+    driver_row = cursor.fetchone()
+
+    if not driver_row:
+        conn.close()
+        return "Driver not found", 404
+
+    driver = {
+        "name": driver_row[0],
+        "hours_worked": driver_row[1]
+    }
+
+    driver_name = driver_row[0]
+    vehicle_id = driver_row[2]
+
+    # --- Vehicle ---
+    vehicle = None
+    if vehicle_id:
+        cursor.execute("""
+            SELECT model, vehicle_id, mileage, technical_inspection_expiry
+            FROM vehicles
+            WHERE vehicle_id = ?
+        """, (vehicle_id,))
+        v = cursor.fetchone()
+
+        if v:
+            vehicle = {
+                "model": v[0],
+                "vehicle_id": v[1],
+                "mileage": v[2],
+                "inspection_expiry": v[3]
+            }
+
+    # --- Orders stats ---
+    active_orders = 0
+    completed_today = 0
+
+    if vehicle_id:
+        cursor.execute("""
+            SELECT status
+            FROM orders
+            WHERE vehicle_id = ?
+        """, (vehicle_id,))
+        orders = cursor.fetchall()
+
+        active_orders = len([
+            o for o in orders
+            if o[0] in ('assigned', 'in_transit')
+        ])
+
+        completed_today = len([
+            o for o in orders
+            if o[0] == 'delivered'
+        ])
+
+    conn.close()
+
+    schedule = {
+        "Monday": "08:00 - 17:00",
+        "Tuesday": "08:00 - 17:00",
+        "Wednesday": "08:00 - 17:00",
+        "Thursday": "08:00 - 17:00",
+        "Friday": "08:00 - 17:00"
+    }
+
+    return render_template(
+        f'{templates_path}/home.html',
+        driver=driver,
+        vehicle=vehicle,
+        active_orders=active_orders,
+        completed_today=completed_today,
+        schedule=schedule
+    )
+
+@driver_bp.route('/profile', methods=['GET', 'POST'])
 def profile():
-    return render_template(f'{templates_path}/profile.html')
+
+    driver_id = 5  # vēlāk: current_user.driver_id
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    if request.method == "POST":
+        # Update editable fields
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+
+        cursor.execute("""
+            UPDATE drivers
+            SET name = ?, email = ?, phone = ?
+            WHERE driver_id = ?
+        """, (name, email, phone, driver_id))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('driver.profile'))
+
+    # GET: load driver data
+    cursor.execute("""
+        SELECT name, email, phone, vehicle_id, hours_worked, status
+        FROM drivers
+        WHERE driver_id = ?
+    """, (driver_id,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return "Driver not found", 404
+
+    user = {
+        "name": row[0],
+        "email": row[1],
+        "phone": row[2],
+        "vehicle_id": row[3],
+        "hours_worked": row[4],
+        "status": row[5]
+    }
+
+    is_editing = request.args.get("edit") == "1"
+
+    return render_template("pages_driver/profile.html", user=user, is_editing=is_editing)
 
 @driver_bp.route('/orders')
 def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    client_id = 10  # Šeit vēlāk jāizmanto current_user.client_id
+    driver_id = 2  # vēlāk: current_user.driver_id
+
+    # Get driver info
     cursor.execute("""
-                   SELECT o.order_id,
-                          o.status,
-                          o.pickup_address,
-                          o.delivery_address,
-                          o.estimated_delivery_time
-                   FROM orders o
-                   WHERE o.client_id = ?
-                   ORDER BY o.order_date DESC
-                   """, (client_id,))
+        SELECT name, vehicle_id
+        FROM drivers
+        WHERE driver_id = ?
+    """, (driver_id,))
+    driver_row = cursor.fetchone()
+
+    if not driver_row:
+        conn.close()
+        return "Driver not found", 404
+
+    driver_name, vehicle_id = driver_row
+
+    # Get orders
+    cursor.execute("""
+        SELECT
+            order_id,
+            status,
+            pickup_address,
+            delivery_address,
+            estimated_delivery_time,
+            price
+        FROM orders
+        WHERE
+            status = 'pending'
+            OR vehicle_id = ?
+        ORDER BY order_date DESC
+    """, (vehicle_id,))
+
     rows = cursor.fetchall()
     conn.close()
 
     order_list = []
     for row in rows:
         order_list.append({
-            'order_id': row[0],
-            'status': row[1],
-            'pickup_address': row[2],
-            'delivery_address': row[3],
-            'packageDescription': "Demo produkts",  # vēlāk aprēķināt no order_items + products
-            'price': 12.50  # vēlāk aprēķināt
+            "order_id": row[0],
+            "status": row[1],
+            "pickup_address": row[2],
+            "delivery_address": row[3],
+            "estimated_delivery_time": row[4],
+            "packageDescription": "Demo produkts",
+            "price": row[5]
         })
 
-    return render_template(f'{templates_path}/orders/orders.html', order_amount=len(order_list), order_list=order_list)
+    return render_template(
+        f'{templates_path}/orders/orders.html',
+        order_amount=len(order_list),
+        order_list=order_list
+    )
 
 @driver_bp.route('/orders/<orderid>')
 def order_by_id(orderid):
