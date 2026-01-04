@@ -33,6 +33,7 @@ def create_app():
         conn.close()
         if user_info:
             return User(user_info[0], user_info[1], user_info[2], user_info[3], user_info[4])
+        #TODO: jastaisa tas pats login, bet tikai vaditajiem + admin ari vajag kadu piekluvi
         # user_info = cursor.execute(f"SELECT driver_id, name, email, phone, password FROM drivers WHERE driver_id = '{user_id}'").fetchone()
         # if user_info:
         #     return user_info
