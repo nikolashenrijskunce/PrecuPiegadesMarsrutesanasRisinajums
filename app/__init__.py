@@ -4,6 +4,7 @@ from flask_login import LoginManager
 import sqlite3
 import os
 from app.utils.user_model import User
+from datetime import timedelta
 
 bcrypt = Bcrypt()
 
@@ -14,6 +15,9 @@ def create_app():
     bcrypt.init_app(app)
     secret_key = os.urandom(24)  # Generates a random 24-byte string
     app.config['SECRET_KEY'] = secret_key
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=12)
+    app.config['SESSION_COOKIE_SECURE'] = True  # HTTPS only
+    app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent XSS
 
     # Configure Flask-Login
     login_manager = LoginManager()

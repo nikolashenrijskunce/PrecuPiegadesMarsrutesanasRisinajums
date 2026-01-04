@@ -143,7 +143,6 @@ def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # client_id = session.get('client_id', 1)  # TODO: use logged-in client_id
     client_id = current_user.id
 
     # If the DB has the newer columns, use them; otherwise fall back to the legacy schema.

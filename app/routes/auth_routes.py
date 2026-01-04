@@ -61,7 +61,7 @@ def login():
             return redirect(url_for("auth.login"))
 
         user = User(row[0], row[1], row[2], row[3], row[4])
-        login_user(user, remember=True)
+        login_user(user, remember=False)
         # client_id, client_email, client_address, client_phone = row
 
         # session.clear()
@@ -88,6 +88,7 @@ def register():
         address = request.form['address']
         city = request.form['city']
         zip_code = request.form['zip']
+        phone = request.form['phone']
 
         # combine address info
         full_address = f"{address}, {city}, {zip_code}"
@@ -108,8 +109,8 @@ def register():
         cursor.execute('''
             INSERT INTO clients (name, address, phone, password)
             VALUES (?, ?, ?, ?)
-        ''', (email, full_address, "", hashed_pw))
-        print("Trying to insert:", email, full_address, "", hashed_pw)
+        ''', (email, full_address, phone, hashed_pw))
+        print("Trying to insert:", email, full_address, phone, hashed_pw)
         conn.commit()
         print("Committed successfully")
         conn.close()
@@ -120,7 +121,6 @@ def register():
     # display the form
     return render_template('authorization/register.html')
 
-#TODO: sataisit logout
 @auth_bp.route('/logout')
 @login_required
 def logout():
