@@ -95,6 +95,11 @@ def register():
             flash('Email address already exists')
             return redirect(url_for('auth.register'))
 
+        user_info = cursor.execute(f"SELECT * FROM drivers WHERE email = '{email}'").fetchone()
+        if user_info:
+            flash('You do not have permission to create a profile using work email!')
+            return redirect(url_for('auth.register'))
+
         cursor.execute('''
             INSERT INTO clients (name, address, phone, password)
             VALUES (?, ?, ?, ?)
