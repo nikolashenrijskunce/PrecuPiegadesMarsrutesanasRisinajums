@@ -1,3 +1,4 @@
+# Sis fails ir generets ar maksliga intelekta palidzibu
 class User:
     def __init__(self, id, email, address, phone, password):
         self.id = id

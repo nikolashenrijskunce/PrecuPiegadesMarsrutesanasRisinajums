@@ -264,6 +264,8 @@ def order_by_id(orderid):
 
     return render_template(f'{templates_path}/orders/order_details.html', order=order)
 
+
+# TODO: IZNEMT ARA VEHICLES
 @driver_bp.route('/vehicles')
 def vehicles():
     con = sqlite3.connect('database.db')
@@ -273,19 +275,7 @@ def vehicles():
                            order_amount=7,
                            order_list=res)
 
+# TODO: IZNEMT ARA VEHICLES
 @driver_bp.route('/vehicles/<vehicleid>')
 def vehicles_by_id(vehicleid):
     return render_template(f'{templates_path}/vehicles/vehicle_details.html', vehicle_id=vehicleid)
-
-
-# \/ so var lietot kaa piemeru, ja vajag, lai atver lapu, kurai padod specifisku informaciju FUNKCIJAA \/
-
-# @main_bp.route('/admin')
-# def admin():
-#     return redirect(url_for('main.driver', name='admin_1'))
-
-# \/ so var lietot kaa piemeru, ja vajag, lai atver lapu, kurai padod specifisku informaciju URL ADRESE \/
-
-# @main_bp.route('/<name>')
-# def driver(name):
-#     return f'<h1>Driver: {name}</h1>'

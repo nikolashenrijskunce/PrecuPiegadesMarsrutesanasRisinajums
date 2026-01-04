@@ -17,15 +17,15 @@ def get_conn():
     conn.row_factory = sqlite3.Row
     return conn
 
-
+# TODO: JANONEM NOST HOME PAGE
 @admin_bp.route('/home')
 def home():
     return render_template(f'{templates_path}/home.html')
 
-
-@admin_bp.route('/profile')
-def profile():
-    return render_template(f'{templates_path}/profile.html')
+# TODO: IZNEMT PROFILE PAGE
+# @admin_bp.route('/profile')
+# def profile():
+#     return render_template(f'{templates_path}/profile.html')
 
 
 @admin_bp.route('/orders')
