@@ -27,16 +27,25 @@ def create_app():
     # User loader function for Flask-Login
     @login_manager.user_loader
     def load_user(user_id):
+        role, just_id = user_id.split(":")
+        just_id = int(just_id)
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        user_info = cursor.execute(f"SELECT client_id, name, address, phone, password FROM clients WHERE client_id = '{user_id}'").fetchone()
-        conn.close()
-        if user_info:
-            return User(user_info[0], user_info[1], user_info[2], user_info[3], user_info[4])
+        if role == 'client':
+            user_info = cursor.execute(f"SELECT client_id FROM clients WHERE client_id = '{just_id}'").fetchone()
+            if user_info:
+                conn.close()
+                return User(user_info[0], role)
+        elif role == 'driver':
+            user_info = cursor.execute(f"SELECT driver_id FROM drivers WHERE driver_id = '{just_id}'").fetchone()
+            if user_info:
+                conn.close()
+                return User(user_info[0], role)
         #TODO: jastaisa tas pats login, bet tikai vaditajiem + admin ari vajag kadu piekluvi
         # user_info = cursor.execute(f"SELECT driver_id, name, email, phone, password FROM drivers WHERE driver_id = '{user_id}'").fetchone()
         # if user_info:
         #     return user_info
+        conn.close()
         return None
 
 

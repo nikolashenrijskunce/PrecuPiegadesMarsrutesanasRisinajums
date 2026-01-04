@@ -48,8 +48,11 @@ drivers un admin janodrosina login Nikolas
 javeic testi ar programmu (paskatities lekciju) Kate
 dokumentacija Alise
 gui Eduards
-API KEY PIE pages_admin/driver/driver_plan.html un pages_admin/orders/orders.html
 
+API KEY PIE pages_admin/driver/driver_plan.html un pages_admin/orders/orders.html
+DRIVER LOGIN EPASTS mark.davis@example.com
+VISIEM DRIVERS PAROLE IR password
+LIETOTAJAM bbb@bbb.bbb PAROLE IR bbb
 Ja ir jaimplemente, tad ir jasataisa Docker un Ubuntu (JA VAJAG)
 
 optional: password reset

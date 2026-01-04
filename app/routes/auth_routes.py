@@ -36,42 +36,31 @@ def login():
             return redirect(url_for('auth.login'))
         # login success -> go to profile
 
-        # user_info = cursor.execute("SELECT * FROM clients WHERE email = username").fetchone()
-        # # if user_info:
-        # #     user = user_info
-        # # user_info = cursor.execute("SELECT * FROM drivers WHERE driver_id = user_id").fetchone()
-        # # if user_info:
-        # #     user = user_info
-
         del password
 
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT client_id, name, address, phone, password
-            FROM clients
-            WHERE name = ?
-        """, (email,))
 
-        row = cursor.fetchone()
+        user_info = cursor.execute(f"SELECT client_id FROM clients WHERE name = '{email}'").fetchone()
+        if user_info:
+            user = User(user_info[0], 'client')
+        else:
+            user_info = cursor.execute(f"SELECT driver_id FROM drivers WHERE email = '{email}'").fetchone()
+            if not user_info:
+                flash('Please check your login details and try again!')
+                return redirect(url_for("auth.login"))
+            user = User(user_info[0], 'driver')
+
         conn.close()
 
-        if not row:
-            flash('Please check your login details and try again!')
-            return redirect(url_for("auth.login"))
-
-        user = User(row[0], row[1], row[2], row[3], row[4])
         login_user(user, remember=False)
-        # client_id, client_email, client_address, client_phone = row
-
-        # session.clear()
-        # session["role"] = "client"
-        # session["client_id"] = client_id
-        # session["client_email"] = client_email
-        # session["client_address"] = client_address
-        # session["client_phone"] = client_phone
-
-        return redirect(url_for("client.home"))
+        if user.get_roles() == 'client':
+            return redirect(url_for("client.home"))
+        elif user.get_roles() == 'driver':
+            return redirect(url_for("driver.home"))
+        else:
+            flash('Error has occured!')
+            return redirect(url_for("auth.login"))
 
     return render_template("authorization/login.html")
 

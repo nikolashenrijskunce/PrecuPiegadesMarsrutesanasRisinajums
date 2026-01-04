@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 import sqlite3
 import os
 from datetime import datetime
-from app.utils.user_model import User
+from app.utils.user_model import User, role_required
 
 client_bp = Blueprint('client', __name__)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -28,6 +28,8 @@ def connect():
 
 @client_bp.route('/home')
 @login_required
+@role_required('client')
+
 def home():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -73,6 +75,7 @@ def home():
 
 @client_bp.route('/profile')
 @login_required
+@role_required('client')
 def profile():
     client_id = current_user.id
     # if not client_id:
@@ -102,6 +105,7 @@ def profile():
 
 @client_bp.route('/profile/edit', methods=['GET', 'POST'])
 @login_required
+@role_required('client')
 def edit_profile():
     client_id = current_user.id
     # if not client_id:
@@ -139,6 +143,7 @@ def edit_profile():
 
 @client_bp.route('/orders')
 @login_required
+@role_required('client')
 def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -205,6 +210,7 @@ def orders():
 
 @client_bp.route('/orders/<orderid>')
 @login_required
+@role_required('client')
 def order_by_id(orderid):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -322,6 +328,7 @@ def order_by_id(orderid):
 
 @client_bp.route('/orders/make', methods=['GET', 'POST'])
 @login_required
+@role_required('client')
 def make_order():
     if request.method == 'POST':
         # client_id = session.get('client_id')  # jābūt ielogotam

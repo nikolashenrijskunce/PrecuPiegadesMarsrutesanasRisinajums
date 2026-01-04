@@ -1,7 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session
+from flask_login import login_required, current_user
 import sqlite3
 import os
 from datetime import datetime
+from app.utils.user_model import User, role_required
 
 driver_bp = Blueprint('driver', __name__)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -9,6 +11,8 @@ DB_PATH = os.path.join(os.path.dirname(BASE_DIR), "database.db")
 templates_path = 'pages_driver'
 
 @driver_bp.route('/home')
+@login_required
+@role_required('driver')
 def home():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -95,6 +99,8 @@ def home():
     )
 
 @driver_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+@role_required('driver')
 def profile():
 
     driver_id = 5  # vēlāk: current_user.driver_id
@@ -144,6 +150,8 @@ def profile():
     return render_template("pages_driver/profile.html", user=user, is_editing=is_editing)
 
 @driver_bp.route('/orders')
+@login_required
+@role_required('driver')
 def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -202,6 +210,8 @@ def orders():
     )
 
 @driver_bp.route('/orders/<orderid>')
+@login_required
+@role_required('driver')
 def order_by_id(orderid):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()

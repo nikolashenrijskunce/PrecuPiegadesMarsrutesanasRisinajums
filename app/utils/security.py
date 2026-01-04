@@ -13,11 +13,13 @@ def verify_login(email, password):
         # Assuming 'name' column stores the client's email
         cursor.execute("SELECT password FROM clients WHERE name = ?", (email,))
         result = cursor.fetchone()
-        conn.close()
-
         if not result:
-            # No such user in the database
-            return False
+            cursor.execute("SELECT password FROM drivers WHERE email = ?", (email,))
+            result = cursor.fetchone()
+            if not result:
+                conn.close()
+                return False
+        conn.close()
 
         stored_hash = result[0]
 
