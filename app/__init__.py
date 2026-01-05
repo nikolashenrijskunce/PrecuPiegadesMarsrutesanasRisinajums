@@ -31,7 +31,7 @@ def create_app():
         just_id = int(just_id)
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        if role == 'client':
+        if role == 'client' or role == 'admin':
             user_info = cursor.execute(f"SELECT client_id FROM clients WHERE client_id = '{just_id}'").fetchone()
             if user_info:
                 conn.close()

@@ -2,9 +2,11 @@ from flask import Blueprint, render_template, redirect, url_for, request, sessio
 import sqlite3
 import os
 from datetime import datetime
+from flask_login import login_required
 
 # IMPORTANT: šis imports ir pareizais tavai struktūrai (app/utils/route_calc.py)
 from app.utils.route_calc import optimize_routes
+from app.utils.user_model import role_required
 
 admin_bp = Blueprint('admin', __name__)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -17,18 +19,10 @@ def get_conn():
     conn.row_factory = sqlite3.Row
     return conn
 
-# TODO: JANONEM NOST HOME PAGE
-@admin_bp.route('/home')
-def home():
-    return render_template(f'{templates_path}/home.html')
-
-# TODO: IZNEMT PROFILE PAGE
-# @admin_bp.route('/profile')
-# def profile():
-#     return render_template(f'{templates_path}/profile.html')
-
 
 @admin_bp.route('/orders')
+@login_required
+@role_required('admin')
 def orders():
     conn = get_conn()
     cursor = conn.cursor()
@@ -101,6 +95,8 @@ def orders():
 
 
 @admin_bp.route('/orders/<orderid>')
+@login_required
+@role_required('admin')
 def order_by_id(orderid):
     conn = get_conn()
     cursor = conn.cursor()
@@ -162,6 +158,8 @@ def order_by_id(orderid):
 
 
 @admin_bp.route('/vehicles')
+@login_required
+@role_required('admin')
 def vehicles():
     conn = get_conn()
     cursor = conn.cursor()
@@ -193,6 +191,8 @@ def vehicles():
 
 
 @admin_bp.route('/vehicles/<vehicleid>')
+@login_required
+@role_required('admin')
 def vehicles_by_id(vehicleid):
     conn = get_conn()
     cursor = conn.cursor()
@@ -222,6 +222,8 @@ def vehicles_by_id(vehicleid):
 
 
 @admin_bp.route('/orders/make', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
 def make_order():
     if request.method == 'POST':
         client_id = session.get('client_id')  # jābūt ielogotam
@@ -257,6 +259,8 @@ def make_order():
 
 
 @admin_bp.route('/drivers')
+@login_required
+@role_required('admin')
 def drivers():
     conn = get_conn()
     cursor = conn.cursor()
@@ -290,6 +294,8 @@ def drivers():
 
 
 @admin_bp.route('/drivers/<int:driver_id>/plan')
+@login_required
+@role_required('admin')
 def driver_plan(driver_id):
     conn = get_conn()
     cursor = conn.cursor()

@@ -41,9 +41,12 @@ def login():
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        user_info = cursor.execute(f"SELECT client_id FROM clients WHERE name = '{email}'").fetchone()
+        user_info = cursor.execute(f"SELECT client_id, name FROM clients WHERE name = '{email}'").fetchone()
         if user_info:
-            user = User(user_info[0], 'client')
+            if user_info[1] == 'admin@example.com':
+                user = User(user_info[0], 'admin')
+            else:
+                user = User(user_info[0], 'client')
         else:
             user_info = cursor.execute(f"SELECT driver_id FROM drivers WHERE email = '{email}'").fetchone()
             if not user_info:
@@ -58,6 +61,8 @@ def login():
             return redirect(url_for("client.home"))
         elif user.get_roles() == 'driver':
             return redirect(url_for("driver.home"))
+        elif user.get_roles() == 'admin':
+            return redirect(url_for("admin.orders"))
         else:
             flash('Error has occured!')
             return redirect(url_for("auth.login"))

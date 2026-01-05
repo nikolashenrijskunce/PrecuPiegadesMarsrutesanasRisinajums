@@ -273,19 +273,3 @@ def order_by_id(orderid):
     order['price'] = total_price
 
     return render_template(f'{templates_path}/orders/order_details.html', order=order)
-
-
-# TODO: IZNEMT ARA VEHICLES
-@driver_bp.route('/vehicles')
-def vehicles():
-    con = sqlite3.connect('database.db')
-    cur = con.cursor()
-    res = cur.execute('SELECT * FROM orders').fetchall()
-    return render_template(f'{templates_path}/vehicles/vehicles.html',
-                           order_amount=7,
-                           order_list=res)
-
-# TODO: IZNEMT ARA VEHICLES
-@driver_bp.route('/vehicles/<vehicleid>')
-def vehicles_by_id(vehicleid):
-    return render_template(f'{templates_path}/vehicles/vehicle_details.html', vehicle_id=vehicleid)
