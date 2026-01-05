@@ -1,4 +1,5 @@
-# Sis fails ir generets ar maksliga intelekta palidzibu
+# Sis fails nodefine lietotaja modeli, kuru izmanto flask_login biblioteka, lai veiktu kontroli ar lietotajiem, kas ir pieslegusies
+# Saja faila User klase ir maksliga intelekta genereta un autora modificeta
 from functools import wraps
 from flask import redirect, url_for, flash
 from flask_login import current_user
@@ -25,7 +26,7 @@ class User:
 
 
 
-# Custom decorator for role-based access
+# Decorator funkcija, kas dod piekluvi lietotajiem atkariba no to iedotas lomas
 def role_required(role):
     def decorator(f):
         @wraps(f)
