@@ -13,18 +13,6 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <strong>Current Order</strong>
-
-                {% if current_order.status == 'pending' %}
-                    <span class="badge bg-secondary">Pending</span>
-                {% elif current_order.status == 'assigned' %}
-                    <span class="badge bg-primary">Assigned</span>
-                {% elif current_order.status == 'in_transit' %}
-                    <span class="badge bg-info">In transit</span>
-                {% elif current_order.status == 'delivered' %}
-                    <span class="badge bg-success">Delivered</span>
-                {% elif current_order.status == 'cancelled' %}
-                    <span class="badge bg-danger">Cancelled</span>
-                {% endif %}
             </div>
 
             <div class="card-body">

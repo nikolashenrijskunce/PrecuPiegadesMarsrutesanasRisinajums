@@ -17,7 +17,7 @@ def home():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    driver_id = 5  # vēlāk: current_user.driver_id
+    driver_id = current_user.id
 
     # --- Driver ---
     cursor.execute("""
@@ -57,29 +57,6 @@ def home():
                 "inspection_expiry": v[3]
             }
 
-    # --- Orders stats ---
-    active_orders = 0
-    completed_today = 0
-
-    if vehicle_id:
-        cursor.execute("""
-            SELECT status
-            FROM orders
-            WHERE vehicle_id = ?
-        """, (vehicle_id,))
-        orders = cursor.fetchall()
-
-        active_orders = len([
-            o for o in orders
-            if o[0] in ('assigned', 'in_transit')
-        ])
-
-        completed_today = len([
-            o for o in orders
-            if o[0] == 'delivered'
-        ])
-
-    conn.close()
 
     schedule = {
         "Monday": "08:00 - 17:00",
@@ -93,8 +70,6 @@ def home():
         f'{templates_path}/home.html',
         driver=driver,
         vehicle=vehicle,
-        active_orders=active_orders,
-        completed_today=completed_today,
         schedule=schedule
     )
 
@@ -103,7 +78,7 @@ def home():
 @role_required('driver')
 def profile():
 
-    driver_id = 5  # vēlāk: current_user.driver_id
+    driver_id = current_user.id
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -126,7 +101,7 @@ def profile():
 
     # GET: load driver data
     cursor.execute("""
-        SELECT name, email, phone, vehicle_id, hours_worked, status
+        SELECT name, email, phone, vehicle_id, hours_worked
         FROM drivers
         WHERE driver_id = ?
     """, (driver_id,))
@@ -141,8 +116,7 @@ def profile():
         "email": row[1],
         "phone": row[2],
         "vehicle_id": row[3],
-        "hours_worked": row[4],
-        "status": row[5]
+        "hours_worked": row[4]
     }
 
     is_editing = request.args.get("edit") == "1"
@@ -156,7 +130,7 @@ def orders():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    driver_id = 2  # vēlāk: current_user.driver_id
+    driver_id = current_user.id
 
     # Get driver info
     cursor.execute("""
@@ -176,17 +150,14 @@ def orders():
     cursor.execute("""
         SELECT
             order_id,
-            status,
             pickup_address,
             delivery_address,
             estimated_delivery_time,
             price
         FROM orders
-        WHERE
-            status = 'pending'
-            OR vehicle_id = ?
+        WHERE driver_name = ?
         ORDER BY order_date DESC
-    """, (vehicle_id,))
+    """, (driver_name,))
 
     rows = cursor.fetchall()
     conn.close()
@@ -195,12 +166,11 @@ def orders():
     for row in rows:
         order_list.append({
             "order_id": row[0],
-            "status": row[1],
-            "pickup_address": row[2],
-            "delivery_address": row[3],
-            "estimated_delivery_time": row[4],
+            "pickup_address": row[1],
+            "delivery_address": row[2],
+            "estimated_delivery_time": row[3],
             "packageDescription": "Demo produkts",
-            "price": row[5]
+            "price": row[4]
         })
 
     return render_template(
@@ -220,12 +190,10 @@ def order_by_id(orderid):
     cursor.execute("""
                    SELECT o.order_id,
                           o.order_date,
-                          o.status,
                           o.pickup_address,
                           o.delivery_address,
                           o.estimated_delivery_time,
                           o.driver_name,
-                          o.vehicle_id,
                           c.name,
                           c.phone,
                           c.address
@@ -242,15 +210,13 @@ def order_by_id(orderid):
     order = dict(
         order_id=order_row[0],
         order_date=order_row[1],
-        status=order_row[2],
-        pickupAddress=order_row[3],
-        deliveryAddress=order_row[4],
-        estimatedDeliveryTime=order_row[5],
-        driverName=order_row[6],
-        vehicleId=order_row[7],
-        clientName=order_row[8],
-        clientPhone=order_row[9],
-        clientAddress=order_row[10]
+        pickupAddress=order_row[2],
+        deliveryAddress=order_row[3],
+        estimatedDeliveryTime=order_row[4],
+        driverName=order_row[5],
+        clientName=order_row[6],
+        clientPhone=order_row[7],
+        clientAddress=order_row[8]
     )
 
     # Get products for this order
@@ -264,8 +230,8 @@ def order_by_id(orderid):
     conn.close()
 
     # Calculate total weight and total price
-    total_weight = sum(item[1] * item[3] for item in items)
-    total_price = sum(item[2] * item[3] for item in items)
+    total_weight = sum(float(item[1]) * int(item[3]) for item in items)
+    total_price = sum(float(item[2]) * int(item[3]) for item in items)
     package_description = ", ".join([item[0] for item in items])
 
     order['packageWeight'] = total_weight

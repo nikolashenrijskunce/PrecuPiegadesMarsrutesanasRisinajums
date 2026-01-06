@@ -3,9 +3,9 @@
 {% block content %}
 <div class="container py-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
         <div>
-            <h2>Vehicles</h2>
+            <h2 class="mb-0">Vehicles</h2>
             <p class="text-muted mb-0">View and manage all vehicles</p>
         </div>
 
@@ -21,33 +21,38 @@
             </div>
         </div>
     {% else %}
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>License Plate</th>
-                        <th>Model</th>
-                        <th>Year</th>
-                        <th>Mileage</th>
-                        <th>Fuel Consumption</th>
-                        <th>Technical Inspection</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for vehicle in vehicle_list %}
-                    <tr onclick="window.location.href='{{ url_for('admin.vehicles_by_id', vehicleid=vehicle['vehicle_id']) }}'" style="cursor:pointer;">
-                        <td>{{ vehicle['vehicle_id'] }}</td>
-                        <td>{{ vehicle['model'] }}</td>
-                        <td>{{ vehicle['year'] }}</td>
-                        <td>{{ "{:,}".format(vehicle['mileage']) }} km</td>
-                        <td>{{ "%.1f"|format(vehicle['fuel_consumption']) }} L/100km</td>
-                        <td>{{ vehicle['technical_inspection_expiry'] }}</td>
-                        <td>{{ vehicle['status']|capitalize }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <!-- Vehicles table -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">All Vehicles</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>License Plate</th>
+                            <th>Model</th>
+                            <th>Year</th>
+                            <th>Mileage</th>
+                            <th>Fuel Consumption</th>
+                            <th>Technical Inspection</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vehicle in vehicle_list %}
+                        <tr style="cursor:pointer;"
+                            onclick="window.location.href='{{ url_for('admin.vehicles_by_id', vehicleid=vehicle['vehicle_id']) }}'">
+                            <td>{{ vehicle['vehicle_id'] }}</td>
+                            <td>{{ vehicle['model'] }}</td>
+                            <td>{{ vehicle['year'] }}</td>
+                            <td>{{ "{:,}".format(vehicle['mileage']) }} km</td>
+                            <td>{{ "%.1f"|format(vehicle['fuel_consumption']) }} L/100km</td>
+                            <td>{{ vehicle['technical_inspection_expiry'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     {% endif %}
 

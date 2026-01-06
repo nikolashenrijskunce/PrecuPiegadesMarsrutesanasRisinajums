@@ -28,11 +28,10 @@ def orders():
     conn = get_conn()
     cursor = conn.cursor()
 
-    # 1) Paņem pending orderus optimizācijai
+    # 1) Paņem orderus optimizācijai
     cursor.execute("""
         SELECT o.order_id, o.pickup_address, o.delivery_address
         FROM orders o
-        WHERE o.status = 'pending'
     """)
     raw_orders = cursor.fetchall()
 
@@ -60,7 +59,6 @@ def orders():
     # 3) Tagad ielasa visus orderus UI (ar driver + ETA)
     cursor.execute("""
         SELECT o.order_id,
-               o.status,
                o.pickup_address,
                o.delivery_address,
                o.estimated_delivery_time,
@@ -78,7 +76,6 @@ def orders():
     for row in rows:
         order_list.append({
             'order_id': row["order_id"],
-            'status': row["status"],
             'pickup_address': row["pickup_address"],
             'delivery_address': row["delivery_address"],
             'estimated_delivery_time': row["estimated_delivery_time"],
@@ -105,12 +102,10 @@ def order_by_id(orderid):
     cursor.execute("""
         SELECT o.order_id,
                o.order_date,
-               o.status,
                o.pickup_address,
                o.delivery_address,
                o.estimated_delivery_time,
                o.driver_name,
-               o.vehicle_id,
                c.name AS client_name,
                c.phone AS client_phone,
                c.address AS client_address
@@ -127,12 +122,10 @@ def order_by_id(orderid):
     order = dict(
         order_id=order_row["order_id"],
         order_date=order_row["order_date"],
-        status=order_row["status"],
         pickupAddress=order_row["pickup_address"],
         deliveryAddress=order_row["delivery_address"],
         estimatedDeliveryTime=order_row["estimated_delivery_time"],
         driverName=order_row["driver_name"],
-        vehicleId=order_row["vehicle_id"],
         clientName=order_row["client_name"],
         clientPhone=order_row["client_phone"],
         clientAddress=order_row["client_address"]
@@ -166,7 +159,7 @@ def vehicles():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT vehicle_id, model, year, mileage, fuel_consumption, technical_inspection_expiry, status
+        SELECT vehicle_id, model, year, mileage, fuel_consumption, technical_inspection_expiry
         FROM vehicles
     """)
     rows = cursor.fetchall()
@@ -180,8 +173,7 @@ def vehicles():
             'year': row["year"],
             'mileage': row["mileage"],
             'fuel_consumption': row["fuel_consumption"],
-            'technical_inspection_expiry': row["technical_inspection_expiry"],
-            'status': row["status"]
+            'technical_inspection_expiry': row["technical_inspection_expiry"]
         })
 
     return render_template(
@@ -199,7 +191,7 @@ def vehicles_by_id(vehicleid):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT vehicle_id, model, year, mileage, fuel_consumption, technical_inspection_expiry, status
+        SELECT vehicle_id, model, year, mileage, fuel_consumption, technical_inspection_expiry
         FROM vehicles
         WHERE vehicle_id = ?
     """, (vehicleid,))
@@ -215,8 +207,7 @@ def vehicles_by_id(vehicleid):
         'year': row["year"],
         'mileage': row["mileage"],
         'fuel_consumption': row["fuel_consumption"],
-        'technical_inspection_expiry': row["technical_inspection_expiry"],
-        'status': row["status"]
+        'technical_inspection_expiry': row["technical_inspection_expiry"]
     }
 
     return render_template(f'{templates_path}/vehicles/vehicle_details.html', vehicle=vehicle)
@@ -240,12 +231,11 @@ def make_order():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO orders (client_id, order_date, status, pickup_address, delivery_address, price)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO orders (client_id, order_date, pickup_address, delivery_address, price)
+            VALUES (?, ?, ?, ?, ?)
         """, (
             client_id,
             datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'pending',
             pickup_address,
             delivery_address,
             price
@@ -374,7 +364,6 @@ def add_vehicle():
         mileage = request.form["mileage"]
         fuel = request.form["fuel_consumption"]
         tech = request.form["technical_inspection_expiry"]
-        status = request.form["status"]
 
         conn = get_conn()
         cursor = conn.cursor()
@@ -386,11 +375,10 @@ def add_vehicle():
                 mileage,
                 fuel_consumption,
                 technical_inspection_expiry,
-                status
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
         """, (
-            vehicle_id, model, year, mileage, fuel, tech, status
+            vehicle_id, model, year, mileage, fuel, tech
         ))
         conn.commit()
         conn.close()

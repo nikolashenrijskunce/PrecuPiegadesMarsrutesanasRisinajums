@@ -17,17 +17,6 @@
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">Order  {{ order['order_id'] }}</h5>
-                    {% if order.status == 'pending' %}
-                        <span class="badge bg-secondary">Pending</span>
-                    {% elif order.status == 'assigned' %}
-                        <span class="badge bg-info text-dark">Assigned</span>
-                    {% elif order.status == 'in_transit' %}
-                        <span class="badge bg-primary">In transit</span>
-                    {% elif order.status == 'delivered' %}
-                        <span class="badge bg-success">Delivered</span>
-                    {% elif order.status == 'cancelled' %}
-                        <span class="badge bg-danger">Cancelled</span>
-                    {% endif %}
                 </div>
                 <div class="card-body">
 
@@ -85,18 +74,6 @@
                     <p class="mb-1 fw-semibold">Price</p>
                     <p class="h4">€{{ "%.2f"|format(order.price) }}</p>
 
-                </div>
-            </div>
-        </div>
-
-        <!-- Right column: Map / Route -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Route</h5>
-                </div>
-                <div class="card-body d-flex align-items-center justify-content-center" style="height:400px; background-color:#f8f9fa;">
-                    <p class="text-muted">Kartes skats šeit (var ievietot Leaflet/Google Maps)</p>
                 </div>
             </div>
         </div>

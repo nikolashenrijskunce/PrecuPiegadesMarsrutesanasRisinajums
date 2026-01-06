@@ -39,7 +39,6 @@ def home():
 
     cursor.execute("""
         SELECT order_id,
-               status,
                pickup_address,
                delivery_address,
                estimated_delivery_time,
@@ -47,7 +46,6 @@ def home():
                price
         FROM orders
         WHERE client_id = ?
-          AND status NOT IN ('delivered', 'cancelled')
         ORDER BY order_date DESC
         LIMIT 1
     """, (client_id,))
@@ -59,12 +57,11 @@ def home():
     if row:
         current_order = {
             'id': row[0],
-            'status': row[1],
-            'pickup_address': row[2],
-            'delivery_address': row[3],
-            'estimated_delivery_time': row[4],
-            'driver_name': row[5],
-            'price': row[6]
+            'pickup_address': row[1],
+            'delivery_address': row[2],
+            'estimated_delivery_time': row[3],
+            'driver_name': row[4],
+            'price': row[5]
         }
 
     return render_template(
@@ -155,7 +152,6 @@ def orders():
         cursor.execute("""
             SELECT
                 o.order_id,
-                o.status,
                 o.pickup_address,
                 o.delivery_address,
                 o.estimated_delivery_time,
@@ -174,7 +170,6 @@ def orders():
         cursor.execute("""
             SELECT
                 o.order_id,
-                o.status,
                 o.pickup_address,
                 o.delivery_address,
                 o.estimated_delivery_time,
@@ -194,14 +189,13 @@ def orders():
     for row in rows:
         order_list.append({
             'order_id': row[0],
-            'status': row[1],
-            'pickup_address': row[2],
-            'delivery_address': row[3],
-            'estimated_delivery_time': row[4],
-            'packageDescription': row[5],
-            'packageWeight': row[6],
-            'price': row[7],
-            'specialInstructions': row[8],
+            'pickup_address': row[1],
+            'delivery_address': row[2],
+            'estimated_delivery_time': row[3],
+            'packageDescription': row[4],
+            'packageWeight': row[5],
+            'price': row[6],
+            'specialInstructions': row[7],
         })
 
     return render_template(f'{templates_path}/orders/orders.html',
@@ -220,12 +214,10 @@ def order_by_id(orderid):
             SELECT
                 o.order_id,
                 o.order_date,
-                o.status,
                 o.pickup_address,
                 o.delivery_address,
                 o.estimated_delivery_time,
                 o.driver_name,
-                o.vehicle_id,
                 COALESCE(o.package_description, GROUP_CONCAT(p.name, ', '), '') AS package_description,
                 COALESCE(o.package_weight, SUM(p.weight * oi.quantity), 0)         AS package_weight,
                 COALESCE(o.price, SUM(p.price * oi.quantity), 0)                  AS price,
@@ -249,19 +241,17 @@ def order_by_id(orderid):
         order = dict(
             order_id=order_row[0],
             order_date=order_row[1],
-            status=order_row[2],
-            pickupAddress=order_row[3],
-            deliveryAddress=order_row[4],
-            estimatedDeliveryTime=order_row[5],
-            driverName=order_row[6],
-            vehicleId=order_row[7],
-            packageDescription=order_row[8],
-            packageWeight=order_row[9],
-            price=order_row[10],
-            specialInstructions=order_row[11],
-            clientName=order_row[12],
-            clientPhone=order_row[13],
-            clientAddress=order_row[14],
+            pickupAddress=order_row[2],
+            deliveryAddress=order_row[3],
+            estimatedDeliveryTime=order_row[4],
+            driverName=order_row[5],
+            packageDescription=order_row[6],
+            packageWeight=order_row[7],
+            price=order_row[8],
+            specialInstructions=order_row[9],
+            clientName=order_row[10],
+            clientPhone=order_row[11],
+            clientAddress=order_row[12],
         )
         conn.close()
         return render_template(f'{templates_path}/orders/order_details.html', order=order)
@@ -269,12 +259,10 @@ def order_by_id(orderid):
     cursor.execute("""
         SELECT o.order_id,
                o.order_date,
-               o.status,
                o.pickup_address,
                o.delivery_address,
                o.estimated_delivery_time,
                o.driver_name,
-               o.vehicle_id,
                c.name,
                c.phone,
                c.address,
@@ -292,16 +280,14 @@ def order_by_id(orderid):
     order = dict(
         order_id=order_row[0],
         order_date=order_row[1],
-        status=order_row[2],
-        pickupAddress=order_row[3],
-        deliveryAddress=order_row[4],
-        estimatedDeliveryTime=order_row[5],
-        driverName=order_row[6],
-        vehicleId=order_row[7],
-        clientName=order_row[8],
-        clientPhone=order_row[9],
-        clientAddress=order_row[10],
-        price=order_row[11],
+        pickupAddress=order_row[2],
+        deliveryAddress=order_row[3],
+        estimatedDeliveryTime=order_row[4],
+        driverName=order_row[5],
+        clientName=order_row[6],
+        clientPhone=order_row[7],
+        clientAddress=order_row[8],
+        price=order_row[9],
         packageDescription='',
         packageWeight=0.0,
         specialInstructions=''
@@ -331,10 +317,9 @@ def order_by_id(orderid):
 @role_required('client')
 def make_order():
     if request.method == 'POST':
-        # client_id = session.get('client_id')  # jābūt ielogotam
         client_id = current_user.id
 
-        pickup_address = request.form['pickup_address']
+        pickup_address = "Zunda krastmala 10, Kurzemes rajons, Rīga, LV-1048"
         delivery_address = request.form['delivery_address']
         package_description = request.form['package_description']
         package_weight = float(request.form['package_weight'])
@@ -347,16 +332,15 @@ def make_order():
         if _has_cols(cursor, 'package_description', 'package_weight', 'special_instructions'):
             cursor.execute("""
                 INSERT INTO orders (
-                    client_id, order_date, status,
+                    client_id, order_date,
                     pickup_address, delivery_address,
                     package_description, package_weight,
                     special_instructions, price
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 client_id,
                 datetime.now().strftime('%Y-%m-%d %H:%M'),
-                'pending',
                 pickup_address,
                 delivery_address,
                 package_description,
@@ -366,12 +350,11 @@ def make_order():
             ))
         else:
             cursor.execute("""
-                INSERT INTO orders (client_id, order_date, status, pickup_address, delivery_address, price)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO orders (client_id, order_date, pickup_address, delivery_address, price)
+                VALUES (?, ?, ?, ?, ?)
             """, (
                 client_id,
                 datetime.now().strftime('%Y-%m-%d %H:%M'),
-                'pending',
                 pickup_address,
                 delivery_address,
                 price
