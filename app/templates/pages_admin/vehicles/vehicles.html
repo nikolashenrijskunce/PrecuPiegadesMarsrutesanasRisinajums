@@ -8,6 +8,10 @@
             <h2>Vehicles</h2>
             <p class="text-muted mb-0">View and manage all vehicles</p>
         </div>
+
+        <a href="{{ url_for('admin.add_vehicle') }}" class="btn btn-primary">
+            + Add Vehicle
+        </a>
     </div>
 
     {% if vehicle_amount == 0 %}

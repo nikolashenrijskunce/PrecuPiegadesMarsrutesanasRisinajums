@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session
 import sqlite3
 import os
+import bcrypt
 from datetime import datetime
 from flask_login import login_required
 
@@ -341,3 +342,60 @@ def driver_plan(driver_id):
         driver=driver,
         orders=orders
     )
+@admin_bp.route("/drivers/add", methods=["GET", "POST"])
+def add_driver():
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        password = request.form["password"]
+
+        hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+
+        with sqlite3.connect("database.db", timeout=10) as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO drivers (name, email, phone, password)
+                VALUES (?, ?, ?, ?)
+            """, (name, email, phone, hashed_pw))
+            conn.commit()
+
+        return redirect(url_for("admin.drivers"))
+
+    return render_template("pages_admin/drivers/add_driver.html")
+
+@admin_bp.route("/vehicles/add", methods=["GET", "POST"])
+def add_vehicle():
+    if request.method == "POST":
+        vehicle_id = request.form["vehicle_id"]   # license plate
+        model = request.form["model"]
+        year = request.form["year"]
+        mileage = request.form["mileage"]
+        fuel = request.form["fuel_consumption"]
+        tech = request.form["technical_inspection_expiry"]
+        status = request.form["status"]
+
+        conn = get_conn()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO vehicles (
+                vehicle_id,
+                model,
+                year,
+                mileage,
+                fuel_consumption,
+                technical_inspection_expiry,
+                status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            vehicle_id, model, year, mileage, fuel, tech, status
+        ))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("admin.vehicles"))
+
+    return render_template("pages_admin/vehicles/add_vehicle.html")
+
