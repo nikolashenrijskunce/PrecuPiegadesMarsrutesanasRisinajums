@@ -4,9 +4,7 @@ import sqlite3
 import bcrypt
 from app.utils.security import verify_login
 from app.utils.user_model import User
-
 import os
-#print("USING DB PATH:", os.path.abspath('database.db'))
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # goes up from /routes to /app
 DB_PATH = os.path.join(os.path.dirname(BASE_DIR), "database.db")

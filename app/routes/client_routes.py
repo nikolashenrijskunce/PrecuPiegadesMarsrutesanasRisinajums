@@ -366,16 +366,3 @@ def make_order():
         return redirect(url_for('client.orders'))
 
     return render_template(f'pages_client/orders/make_order.html')
-
-
-# \/ so var lietot kaa piemeru, ja vajag, lai atver lapu, kurai padod specifisku informaciju FUNKCIJAA \/
-
-# @main_bp.route('/admin')
-# def admin():
-#     return redirect(url_for('main.driver', name='admin_1'))
-
-# \/ so var lietot kaa piemeru, ja vajag, lai atver lapu, kurai padod specifisku informaciju URL ADRESE \/
-
-# @main_bp.route('/<name>')
-# def driver(name):
-#     return f'<h1>Driver: {name}</h1>'

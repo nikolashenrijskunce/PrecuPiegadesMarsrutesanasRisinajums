@@ -44,5 +44,3 @@ def optimize_routes(orders):
         })
 
     return optimized
-
-
