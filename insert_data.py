@@ -42,120 +42,81 @@ for i in range(1, 101):
 cursor.executemany('INSERT INTO products (name, weight, price) VALUES (?, ?, ?)', products)
 print("✅ Inserted 100 products")
 
-# Insert sample orders
 
-# Sample addresses
-pickup_addresses = [
-    "Rīgas iela 1, Rīga",
-    "Brīvības iela 10, Rīga",
-    "Lāčplēša iela 5, Rīga"
+# Insert 5 sample orders
+pickup_address = "Zunda krastmala 10, Kurzemes rajons, Rīga, LV-1048"
+
+orders = [
+    {
+        "client_id": 1,
+        "delivery_address": "Pils laukums 3, Centra rajons, Rīga, LV-1050",
+        "driver_name": "Mark Davis",
+        "vehicle_id": "TRK-03",
+        "price": 120.50
+    },
+    {
+        "client_id": 2,
+        "delivery_address": "Vienības gat. 194A, Zemgales priekšpilsēta, Rīga, LV-1058",
+        "driver_name": "Anna Johnson",
+        "vehicle_id": "TRK-01",
+        "price": 95.00
+    },
+    {
+        "client_id": 3,
+        "delivery_address": "Uriekstes iela 8A, Ziemeļu rajons, Rīga, LV-1005",
+        "driver_name": "Peter Brown",
+        "vehicle_id": "TRK-02",
+        "price": 110.00
+    },
+    {
+        "client_id": 4,
+        "delivery_address": "Brīvības iela 76, Centra rajons, Rīga, LV-1001",
+        "driver_name": "John Smith",
+        "vehicle_id": "TRK-01",
+        "price": 130.00
+    },
+    {
+        "client_id": 5,
+        "delivery_address": "Maskavas iela 250, Latgales priekšpilsēta, Rīga, LV-1063",
+        "driver_name": "Mark Davis",
+        "vehicle_id": "TRK-03",
+        "price": 105.75
+    }
 ]
 
-delivery_addresses = [
-    "Daugavas iela 20, Rīga",
-    "Valdemāra iela 8, Rīga",
-    "Baznīcas iela 3, Rīga"
-]
-
-driver_names = ["Jānis B.", "Anna K.", "Pēteris S."]
-vehicle_ids = ["TRK-01", "TRK-02", "TRK-03"]
-
-#for order_id in range(1, 6):  # 5 sample orders
-#    client_id = random.randint(1, 50)
-#    order_date = "2025-11-05"
-#    status = random.choice(["pending", "assigned", "in_transit", "delivered", "cancelled"])
-#    pickup_address = random.choice(pickup_addresses)
-#    delivery_address = random.choice(delivery_addresses)
-#    estimated_delivery_time = "2025-11-06 14:00"
-#    driver_name = random.choice(driver_names)
-#    vehicle_id = random.choice(vehicle_ids)
-#    price = round(random.uniform(25, 1500), 2)
-#    cursor.execute("""
-#                   INSERT INTO orders
-#                   (client_id, order_date, status, pickup_address, delivery_address, estimated_delivery_time,
-#                    driver_name, vehicle_id, price)
-#                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-#                   """, (client_id, order_date, status, pickup_address, delivery_address, estimated_delivery_time,
-#                         driver_name, vehicle_id, price))
-
-#    new_order_id = cursor.lastrowid
-
-    # Add random order items
-#    for _ in range(random.randint(1, 4)):
-#        product_id = random.randint(1, 100)
-#        quantity = random.randint(1, 5)
-#        cursor.execute(
-#            'INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?)',
-#            (new_order_id, product_id, quantity)
-#        )
-
-# Manually insert ONE order
-client_id = 1
 order_date = "2026-01-01"
-status = "assigned"
-pickup_address = "Ķīpsalas iela 6a, Kurzemes rajons, Rīga, LV-1048"
-delivery_address = "Pils laukums 3, Centra rajons, Rīga, LV-1050"
-estimated_delivery_time = "2026-01-02 15:00"
-driver_name = "Jānis B."
-vehicle_id = "TRK-01"
-price = 120.50
 
-cursor.execute("""
-    INSERT INTO orders
-    (client_id, order_date, status, pickup_address, delivery_address,
-     estimated_delivery_time, driver_name, vehicle_id, price)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-""", (
-    client_id,
-    order_date,
-    status,
-    pickup_address,
-    delivery_address,
-    estimated_delivery_time,
-    driver_name,
-    vehicle_id,
-    price
-))
+for order in orders:
+    cursor.execute("""
+        INSERT INTO orders (
+            client_id,
+            order_date,
+            pickup_address,
+            delivery_address,
+            estimated_delivery_time,
+            driver_name,
+            vehicle_id,
+            price
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        order["client_id"],
+        order_date,
+        pickup_address,
+        order["delivery_address"],
+        None,                     # Estimated delivery time left as NULL for now
+        order["driver_name"],
+        order["vehicle_id"],
+        order["price"]
+    ))
 
-order_id = cursor.lastrowid
+conn.commit()
 
-
-client_id = 1
-order_date = "2026-01-01"
-status = "assigned"
-pickup_address = "Ķīpsalas iela 6a, Kurzemes rajons, Rīga, LV-1048"
-delivery_address = "Pils laukums 3, Centra rajons, Rīga, LV-1050"
-estimated_delivery_time = "2026-01-02 15:00"
-driver_name = "Jānis B."
-vehicle_id = "TRK-01"
-price = 120.50
-
-cursor.execute("""
-    INSERT INTO orders
-    (client_id, order_date, status, pickup_address, delivery_address,
-     estimated_delivery_time, driver_name, vehicle_id, price)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-""", (
-    client_id,
-    order_date,
-    status,
-    pickup_address,
-    delivery_address,
-    estimated_delivery_time,
-    driver_name,
-    vehicle_id,
-    price
-))
-
-order_id = cursor.lastrowid
+print("✅ Inserted 5 sample orders with real drivers")
 
 
 
-
-
-print("✅ Inserted 5 sample orders with random items")
 vehicle_models = ["Mercedes Sprinter", "Volvo FH", "Scania R-Series"]
-vehicle_statuses = ["active", "maintenance", "inactive"]
 
 vehicles = []
 for i, vid in enumerate(["TRK-01", "TRK-02", "TRK-03"]):
@@ -164,20 +125,18 @@ for i, vid in enumerate(["TRK-01", "TRK-02", "TRK-03"]):
     mileage = random.randint(50000, 300000)
     fuel_consumption = round(random.uniform(8.0, 25.0), 1)
     inspection_date = f"2025-{random.randint(1,12):02}-15"
-    status = random.choice(vehicle_statuses)
-    vehicles.append((vid, model, year, mileage, fuel_consumption, inspection_date, status))
+    vehicles.append((vid, model, year, mileage, fuel_consumption, inspection_date))
 
 cursor.executemany("""
 INSERT OR REPLACE INTO vehicles
-(vehicle_id, model, year, mileage, fuel_consumption, technical_inspection_expiry, status)
-VALUES (?, ?, ?, ?, ?, ?, ?)
+(vehicle_id, model, year, mileage, fuel_consumption, technical_inspection_expiry)
+VALUES (?, ?, ?, ?, ?, ?)
 """, vehicles)
 
 print("✅ Inserted sample vehicles")
 
 # Sample driver names, statuses and vehicles
 driver_names = ["John Smith", "Anna Johnson", "Peter Brown", "Laura White", "Mark Davis"]
-driver_statuses = ["available", "busy", "offline"]
 
 # Fetch existing vehicle IDs from vehicles table
 cursor.execute("SELECT vehicle_id FROM vehicles")
@@ -192,14 +151,14 @@ for i in range(5):  # 5 sample drivers
     phone = f"+371 2{random.randint(1000000, 9999999)}"
     vehicle_id = random.choice(vehicle_ids) if vehicle_ids else None
     hours_worked = round(random.uniform(0, 160), 1)  # monthly hours
-    status = random.choice(driver_statuses)
-    drivers.append((name, email, phone, vehicle_id, hours_worked, status))
+
+    drivers.append((name, email, phone, vehicle_id, hours_worked))
 
 # Insert into DB
 cursor.executemany("""
 INSERT INTO drivers
-(name, email, phone, vehicle_id, hours_worked, status)
-VALUES (?, ?, ?, ?, ?, ?)
+(name, email, phone, vehicle_id, hours_worked)
+VALUES (?, ?, ?, ?, ?)
 """, drivers)
 
 conn.commit()

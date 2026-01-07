@@ -1,0 +1,56 @@
+{% extends "pages_admin/base.html" %}
+{% block title %}Add Vehicle{% endblock %}
+{% block content %}
+
+<div class="container py-4">
+
+    <h2 class="mb-4">Add Vehicle</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="POST">
+
+                <div class="mb-3">
+                    <label class="form-label">License Plate</label>
+                    <input type="text" name="vehicle_id" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Model</label>
+                    <input type="text" name="model" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Year</label>
+                    <input type="number" name="year" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mileage (km)</label>
+                    <input type="number" name="mileage" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Fuel Consumption (L/100km)</label>
+                    <input type="number" step="0.1" name="fuel_consumption" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Technical Inspection Expiry</label>
+                    <input type="date" name="technical_inspection_expiry" class="form-control">
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url_for('admin.vehicles') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Vehicle</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -18,18 +18,6 @@
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Order #{{ order.order_id }}</h5>
-
-                    {% if order.status == 'pending' %}
-                        <span class="badge bg-secondary">Pending</span>
-                    {% elif order.status == 'assigned' %}
-                        <span class="badge bg-info text-dark">Assigned</span>
-                    {% elif order.status == 'in_transit' %}
-                        <span class="badge bg-primary">In transit</span>
-                    {% elif order.status == 'delivered' %}
-                        <span class="badge bg-success">Delivered</span>
-                    {% elif order.status == 'cancelled' %}
-                        <span class="badge bg-danger">Cancelled</span>
-                    {% endif %}
                 </div>
 
                 <div class="card-body">

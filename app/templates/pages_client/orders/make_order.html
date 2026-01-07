@@ -1,4 +1,4 @@
-{% extends "pages_admin/base.html" %}
+{% extends "pages_client/base.html" %}
 {% block title %}Jauns pasūtījums{% endblock %}
 
 {% block content %}
@@ -15,10 +15,6 @@
 
             <!-- STEP 1 -->
             <div class="step">
-                <div class="mb-3">
-                    <label class="form-label">Pickup address</label>
-                    <input name="pickup_address" class="form-control" required>
-                </div>
                 <div class="mb-3">
                     <label class="form-label">Delivery address</label>
                     <input name="delivery_address" class="form-control" required>
