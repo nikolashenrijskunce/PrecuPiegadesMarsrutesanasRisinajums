@@ -41,14 +41,14 @@ def login():
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        user_info = cursor.execute(f"SELECT client_id, name FROM clients WHERE name = '{email}'").fetchone()
+        user_info = cursor.execute(f"SELECT client_id, name FROM clients WHERE name = ?", (email,)).fetchone()
         if user_info:
             if user_info[1] == 'admin@example.com':
                 user = User(user_info[0], 'admin')
             else:
                 user = User(user_info[0], 'client')
         else:
-            user_info = cursor.execute(f"SELECT driver_id FROM drivers WHERE email = '{email}'").fetchone()
+            user_info = cursor.execute(f"SELECT driver_id FROM drivers WHERE email = ?", (email,)).fetchone()
             if not user_info:
                 flash('Please check your login details and try again!')
                 return redirect(url_for("auth.login"))
@@ -95,12 +95,12 @@ def register():
         cursor = conn.cursor()
 
         # Checks if user already exists
-        user_info = cursor.execute(f"SELECT * FROM clients WHERE name = '{email}'").fetchone()
+        user_info = cursor.execute(f"SELECT * FROM clients WHERE name = ?", (email,)).fetchone()
         if user_info:
             flash('Email address already exists')
             return redirect(url_for('auth.register'))
 
-        user_info = cursor.execute(f"SELECT * FROM drivers WHERE email = '{email}'").fetchone()
+        user_info = cursor.execute(f"SELECT * FROM drivers WHERE email = ?", (email,)).fetchone()
         if user_info:
             flash('You do not have permission to create a profile using work email!')
             return redirect(url_for('auth.register'))
