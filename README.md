@@ -7,6 +7,7 @@ Izstrādātais risinājums priekš preču piegādes maršrutēšanas problēmas 
 - Programmēšanas valoda: Python
 - Datu bāze: SQLite
 - Frontend: HTML, CSS, JavaScript
+- Maršrutēšana: Google Maps API
 - Datu apstrāde: Flask
 
 ### Sistēmas galvenās sastāvdaļas
@@ -67,7 +68,6 @@ Sistēma automātiski sadala piegādes starp vadītājiem un izveido apmeklējam
 |delivery_address|piegādes adrese|
 |estimated_delivery_time|plānotais piegādes laiks|
 |driver_name|piešķirtā vadītāja vārds|
-|vehicle_id|izmantotā transportlīdzekļa ID|
 |price|kopējā pasūtījuma cena|
 ---
 *pasūtījums ir saistīts ar vienu klientu un vairākām pasūtījuma vienībām*
@@ -89,7 +89,6 @@ Sistēma automātiski sadala piegādes starp vadītājiem un izveido apmeklējam
 |milage|transportlīdzekļa nobrakumus|
 |fuel_consumption|degvielas patēriņš|
 |technical_inspection_expiry|tehniskās apskates termiņš|
-|status|transportlīdzekļa pieejamība|
 ---
 *transportlīdzeklis var būt piesaistīts vadītājam un pasūtījumam*
 
@@ -102,21 +101,17 @@ Sistēma automātiski sadala piegādes starp vadītājiem un izveido apmeklējam
 |phone|tālrunis|
 |vehicle_id|piešķirtais transportlīdzeklis|
 |hours_worked|nostrādātās stundas|
-|status|vadītāja pieejamība|
 ---
 *vadītājs ir piesaistīts transportlīdzeklim un vairākiem pasūtījumiem*
 # Sistēmas uzlabojumu iespejas
 - Laika logu ievērošana piegādēm
 - Transportlīdzekļu kapacitātes ierobežojumi
 - Reāllaika GPS izsekošana
-# Algoritms
-Algoritms tiek realizēts ar Google OR-Tools, kas nodrošina aprēķinu un Google Routes API, kas nodrošina distnču matricas iegūšanu. Tas tiek realizēts utils/oute_calc.py failā.
 
-1. Failam padod sarakstu ar adresēm, uz kurām ir jāveic piegādes.
-2. Iedoto informāciju pārstrukturizē un padod Google serveriem, kas veic aprēķinu.
-3. No Google serveriem saņem atbildi, kur iegūst distanču matricu un to pārveido Python saraksta formātā.
-4. Saraksts tiek padots funkcijai, kas ar Google OR rīkiem veic aprēķinu matricai, lai iegūtu strukturizētu sarakstu ar maršrutiem, kas iekļauj vairākus piegādes punktus ar optimālāko punktu sasniegšanas laiku.
+# Atsauces
 
-Aprēķini tiek veikti izmantojot manhetenas attālumu. Sīkāku informāciju par aprēķina gaitu var meklēt šajā resursā: https://www.geeksforgeeks.org/data-science/manhattan-distance/
-
+- Koda ģenerēšana notika ar ChatGPT palīdzību
+- HTML lapu veidošanai tika izmantots Figma + ChatGPT
+- OpenAI. (2024). ChatGPT (GPT-4). https://chat.openai.com
+- https://developers.google.com/maps/documentation/javascript/legacy/directions
 
