@@ -8,7 +8,7 @@ Izstrādātais risinājums priekš preču piegādes maršrutēšanas problēmas 
 - Datu bāze: SQLite
 - Frontend: HTML, CSS, JavaScript
 - Maršrutēšana: Google Maps API
-- Datu apstrāde: Flask
+- Satvars: Flask
 
 ### Sistēmas galvenās sastāvdaļas
 - Lietotāja saskarne
