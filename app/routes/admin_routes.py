@@ -339,21 +339,27 @@ def add_driver():
         email = request.form["email"]
         phone = request.form["phone"]
         password = request.form["password"]
+        vehicle = request.form["car"]
 
         hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
 
         with sqlite3.connect("database.db", timeout=10) as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO drivers (name, email, phone, password)
-                VALUES (?, ?, ?, ?)
-            """, (name, email, phone, hashed_pw))
+                INSERT INTO drivers (name, email, phone, password, vehicle_id)
+                VALUES (?, ?, ?, ?, ?)
+            """, (name, email, phone, hashed_pw, vehicle))
             conn.commit()
 
         return redirect(url_for("admin.drivers"))
+    conn = get_conn()
+    cursor = conn.cursor()
 
-    return render_template("pages_admin/drivers/add_driver.html")
+    cursor.execute("SELECT vehicle_id FROM vehicles")
+    current_vehicles = cursor.fetchall()
+    conn.close()
+
+    return render_template("pages_admin/drivers/add_driver.html", current_vehicles=current_vehicles)
 
 @admin_bp.route("/vehicles/add", methods=["GET", "POST"])
 def add_vehicle():
@@ -374,7 +380,7 @@ def add_vehicle():
                 year,
                 mileage,
                 fuel_consumption,
-                technical_inspection_expiry,
+                technical_inspection_expiry
             )
             VALUES (?, ?, ?, ?, ?, ?)
         """, (
