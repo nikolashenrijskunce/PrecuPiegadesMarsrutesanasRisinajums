@@ -1,43 +1,40 @@
 {% extends "authorization/authorization_base.html" %}
-{% block title %}Register{% endblock %}
-
+{% block title %}Login{% endblock %}
 {% block content %}
-<div class="auth-container">
-    <h1>Order Manager</h1>
-    <p class="subtitle">Create a new account</p>
+<style>
+    #formBlock {
+        margin: 5%;
+        background-color: darkgray;
+        padding: 3%;
+        border-radius: 10px;
+    }
+</style>
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-danger py-2" role="alert">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <form method="POST" action="{{ url_for('auth.register') }}">
-        <input type="email" name="email" class="form-control" placeholder="Email" required>
-        <input type="password" name="pwd" class="form-control" placeholder="Password" required>
-        <input type="text" name="address" class="form-control" placeholder="Street" required>
-        <div style="display:flex; gap:10px;">
-            <input type="text" name="city" class="form-control" placeholder="City" required>
-            <input type="text" name="zip" class="form-control" placeholder="Zip" required>
+<div class="container">
+    <form class="row g-3" id="formBlock" method="POST" action="{{ url_for('auth.login') }}">
+        {% with messages = get_flashed_messages()%}
+        {% if messages%}
+            {% for message in messages%}
+            <p style="color:red;">{{message}}</p>
+            {%endfor%}
+            {%endif%}
+            {%endwith%}
+        <div class="col-md-12">
+            <label for="inputEmail4" class="form-label">Email</label>
+            <input type="email" class="form-control" id="inputEmail4" name="email" required>
         </div>
-        <input type="text" name="phone" class="form-control" placeholder="Phone Number" required>
-
-        <div class="form-check mt-2 text-start">
-            <input class="form-check-input" type="checkbox" id="gridCheck" required>
-            <label class="form-check-label text-white" for="gridCheck">
-                Agree to <a href="{{ url_for('auth.termsandconditions') }}">terms and conditions</a>
-            </label>
+        <div class="col-md-12">
+            <label for="inputPassword4" class="form-label">Password</label>
+            <input type="password" class="form-control" id="inputPassword4" name="pwd" required>
         </div>
-
-        <button type="submit" class="btn btn-primary w-100 mt-3">Sign Up</button>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </div>
+        <div class="col-12 text-center mt-3">
+            <p>Don’t have an account?
+                <a href="{{ url_for('auth.register') }}" class="link-light">Sign up</a>
+            </p>
+        </div>
     </form>
-
-    <p class="links mt-3">
-        Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>
-    </p>
 </div>
 {% endblock %}
