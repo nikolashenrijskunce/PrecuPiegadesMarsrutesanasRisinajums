@@ -4,76 +4,102 @@
 {% block content %}
 <div class="container py-4" style="max-width: 700px;">
 
-<div class="card shadow-sm">
-    <div class="card-header">
-        <h4 class="mb-0">Create new order</h4>
-        <small class="text-muted">Step <span id="stepNum">1</span> of 4</small>
+    <div class="card shadow-sm" style="
+        background: rgba(255,255,255,0.12);
+        border-radius: 12px;
+        border: none;
+        padding: 25px;
+    ">
+        <div class="card-header">
+            <h4 class="mb-0 text-white">Create new order</h4>
+            <small class="text-muted">Step <span id="stepNum">1</span> of 4</small>
+        </div>
+
+        <form method="POST" id="orderForm">
+            <div class="card-body">
+
+                <!-- STEP 1 -->
+                <div class="step">
+                    <div class="mb-3">
+                        <label class="form-label text-white">Pickup address</label>
+                        <input name="pickup_address" class="form-control styled-input" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white">Delivery address</label>
+                        <input name="delivery_address" class="form-control styled-input" required>
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="step d-none">
+                    <div class="mb-3">
+                        <label class="form-label text-white">Package description</label>
+                        <input name="package_description" class="form-control styled-input" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white">Weight (kg)</label>
+                        <input name="package_weight" type="number" step="0.1" class="form-control styled-input" required oninput="calcPrice()">
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="step d-none">
+                    <div class="mb-3">
+                        <label class="form-label text-white">Special instructions</label>
+                        <textarea name="special_instructions" class="form-control styled-input" rows="4"></textarea>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h5>Price</h5>
+                        <h3>€<span id="price">15.00</span></h3>
+                        <input type="hidden" name="price" id="priceInput">
+                    </div>
+                </div>
+
+                <!-- STEP 4 -->
+                <div class="step d-none">
+                    <h5 class="text-white">Review</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>From:</strong> <span id="sumPickup"></span></li>
+                        <li class="list-group-item"><strong>To:</strong> <span id="sumDelivery"></span></li>
+                        <li class="list-group-item"><strong>Package:</strong> <span id="sumPackage"></span></li>
+                        <li class="list-group-item"><strong>Price:</strong> €<span id="sumPrice"></span></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">Back</button>
+                <button type="button" class="btn btn-primary" onclick="nextStep()" id="nextBtn">Next</button>
+                <button type="submit" class="btn btn-success d-none" id="submitBtn">
+                    Confirm purchase
+                </button>
+            </div>
+        </form>
     </div>
-
-    <form method="POST" id="orderForm">
-        <div class="card-body">
-
-            <!-- STEP 1 -->
-            <div class="step">
-                <div class="mb-3">
-                    <label class="form-label">Pickup address</label>
-                    <input name="pickup_address" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Delivery address</label>
-                    <input name="delivery_address" class="form-control" required>
-                </div>
-            </div>
-
-            <!-- STEP 2 -->
-            <div class="step d-none">
-                <div class="mb-3">
-                    <label class="form-label">Package description</label>
-                    <input name="package_description" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Weight (kg)</label>
-                    <input name="package_weight" type="number" step="0.1" class="form-control" required oninput="calcPrice()">
-                </div>
-            </div>
-
-            <!-- STEP 3 -->
-            <div class="step d-none">
-                <div class="mb-3">
-                    <label class="form-label">Special instructions</label>
-                    <textarea name="special_instructions" class="form-control" rows="4"></textarea>
-                </div>
-
-                <div class="alert alert-info">
-                    <h5>Price</h5>
-                    <h3>€<span id="price">15.00</span></h3> <!-- aprēķina delivery cenu -->
-                    <input type="hidden" name="price" id="priceInput">
-                </div>
-            </div>
-
-            <!-- STEP 4 -->
-            <div class="step d-none">
-                <h5>Review</h5>
-                <ul class="list-group">
-                    <li class="list-group-item"><strong>From:</strong> <span id="sumPickup"></span></li>
-                    <li class="list-group-item"><strong>To:</strong> <span id="sumDelivery"></span></li>
-                    <li class="list-group-item"><strong>Package:</strong> <span id="sumPackage"></span></li>
-                    <li class="list-group-item"><strong>Price:</strong> €<span id="sumPrice"></span></li>
-                </ul>
-            </div>
-
-        </div>
-
-        <div class="card-footer d-flex justify-content-between">
-            <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">Back</button>
-            <button type="button" class="btn btn-primary" onclick="nextStep()" id="nextBtn">Next</button>
-            <button type="submit" class="btn btn-success d-none" id="submitBtn">
-                Confirm purchase
-            </button>
-        </div>
-    </form>
 </div>
-</div>
+
+<style>
+/* Styled inputs like add_vehicle page */
+.styled-input {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-bottom: 2px solid #555;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 0;
+    transition: all 0.3s ease;
+}
+
+.styled-input:focus {
+    background: rgba(255,255,255,0.15);
+    border-bottom: 2px solid #6a11cb;
+    outline: none;
+    box-shadow: 0 0 8px rgba(106,17,203,0.5);
+    color: #fff;
+}
+</style>
 
 <script>
 let step = 0;
