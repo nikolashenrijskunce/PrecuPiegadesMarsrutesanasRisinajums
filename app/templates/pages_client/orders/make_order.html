@@ -4,9 +4,9 @@
 {% block content %}
 <div class="container py-4" style="max-width: 700px;">
 
-<div class="card shadow-sm">
-    <div class="card-header">
-        <h4 class="mb-0">Create new order</h4>
+<div class="card shadow-sm" style="background: rgba(255,255,255,0.05); border-radius: 10px;">
+    <div class="card-header" style="background: rgba(255,215,0,0.1);">
+        <h4 class="mb-0" style="color: #ffd700;">Create new order</h4>
         <small class="text-muted">Step <span id="stepNum">1</span> of 4</small>
     </div>
 
@@ -16,52 +16,63 @@
             <!-- STEP 1 -->
             <div class="step">
                 <div class="mb-3">
-                    <label class="form-label">Delivery address</label>
-                    <input name="delivery_address" class="form-control" required>
+                    <label class="form-label" style="color: #ffd700;">Delivery address</label>
+                    <input name="delivery_address" class="form-control bg-transparent text-white"
+                           style="border: 1px solid rgba(255,255,255,0.3);" required>
                 </div>
             </div>
 
             <!-- STEP 2 -->
             <div class="step d-none">
                 <div class="mb-3">
-                    <label class="form-label">Package description</label>
-                    <input name="package_description" class="form-control" required>
+                    <label class="form-label" style="color: #ffd700;">Package description</label>
+                    <input name="package_description" class="form-control bg-transparent text-white"
+                           style="border: 1px solid rgba(255,255,255,0.3);" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Weight (kg)</label>
-                    <input name="package_weight" type="number" step="0.1" class="form-control" required oninput="calcPrice()">
+                    <label class="form-label" style="color: #ffd700;">Weight (kg)</label>
+                    <input name="package_weight" type="number" step="0.1"
+                           class="form-control bg-transparent text-white"
+                           style="border: 1px solid rgba(255,255,255,0.3);"
+                           required oninput="calcPrice()">
                 </div>
             </div>
 
             <!-- STEP 3 -->
             <div class="step d-none">
                 <div class="mb-3">
-                    <label class="form-label">Special instructions</label>
-                    <textarea name="special_instructions" class="form-control" rows="4"></textarea>
+                    <label class="form-label" style="color: #ffd700;">Special instructions</label>
+                    <textarea name="special_instructions" class="form-control bg-transparent text-white"
+                              style="border: 1px solid rgba(255,255,255,0.3);" rows="4"></textarea>
                 </div>
 
-                <div class="alert alert-info">
-                    <h5>Price</h5>
-                    <h3>€<span id="price">15.00</span></h3> <!-- aprēķina delivery cenu -->
+                <div class="p-3 mb-2" style="background: rgba(255,255,255,0.1); border-radius: 6px;">
+                    <h5 style="color: #ffd700;">Price</h5>
+                    <h3>€<span id="price">15.00</span></h3>
                     <input type="hidden" name="price" id="priceInput">
                 </div>
             </div>
 
             <!-- STEP 4 -->
             <div class="step d-none">
-                <h5>Review</h5>
-                <ul class="list-group">
-                    <li class="list-group-item"><strong>From:</strong> <span id="sumPickup"></span></li>
-                    <li class="list-group-item"><strong>To:</strong> <span id="sumDelivery"></span></li>
-                    <li class="list-group-item"><strong>Package:</strong> <span id="sumPackage"></span></li>
-                    <li class="list-group-item"><strong>Price:</strong> €<span id="sumPrice"></span></li>
+                <h5 style="color: #ffd700;">Review</h5>
+                <ul class="list-group" style="background: rgba(255,255,255,0.05);">
+                    <li class="list-group-item" style="background: rgba(255,255,255,0.05); color: #fff;">
+                        <strong>To:</strong> <span id="sumDelivery"></span>
+                    </li>
+                    <li class="list-group-item" style="background: rgba(255,255,255,0.1); color: #fff;">
+                        <strong>Package:</strong> <span id="sumPackage"></span>
+                    </li>
+                    <li class="list-group-item" style="background: rgba(255,255,255,0.05); color: #fff;">
+                        <strong>Price:</strong> €<span id="sumPrice"></span>
+                    </li>
                 </ul>
             </div>
 
         </div>
 
         <div class="card-footer d-flex justify-content-between">
-            <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">Back</button>
+            <button type="button" class="btn btn-outline-light" onclick="prevStep()">Back</button>
             <button type="button" class="btn btn-primary" onclick="nextStep()" id="nextBtn">Next</button>
             <button type="submit" class="btn btn-success d-none" id="submitBtn">
                 Confirm purchase

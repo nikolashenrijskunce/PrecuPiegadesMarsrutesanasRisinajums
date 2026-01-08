@@ -220,7 +220,7 @@ def make_order():
     if request.method == 'POST':
         client_id = session.get('client_id')  # jābūt ielogotam
 
-        pickup_address = request.form['pickup_address']
+        pickup_address = "Zunda krastmala 10, Kurzemes rajons, Rīga, LV-1048"
         delivery_address = request.form['delivery_address']
         package_description = request.form['package_description']  # (pašlaik DB neliekam, ok)
         package_weight = float(request.form['package_weight'])    # (pašlaik DB neliekam, ok)

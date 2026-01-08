@@ -1,35 +1,79 @@
 {% extends "authorization/authorization_base.html" %}
 {% block title %}Login{% endblock %}
 {% block content %}
+
 <style>
+    /* Remove grey box, make transparent form block */
     #formBlock {
         margin: 5%;
-        background-color: darkgray;
         padding: 3%;
         border-radius: 10px;
+        background: transparent;  /* <- fully transparent */
+        box-shadow: none;         /* <- no shadow */
+    }
+
+    /* Form labels and inputs */
+    #formBlock .form-label {
+        color: #fff; /* white labels */
+    }
+
+    #formBlock .form-control {
+        background: transparent; /* transparent input background */
+        border: 1px solid rgba(255,255,255,0.4);
+        color: #fff;
+        border-radius: 6px;
+    }
+
+    #formBlock .form-control:focus {
+        background: transparent;
+        border-color: #ffd700;
+        box-shadow: 0 0 5px #ffd700;
+        color: #fff;
+    }
+
+    /* Submit button */
+    #formBlock .btn-primary {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    #formBlock .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+    /* Links */
+    #formBlock .link-light {
+        color: #ffd700 !important;
+        text-decoration: underline;
     }
 </style>
 
-<div class="container">
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
     <form class="row g-3" id="formBlock" method="POST" action="{{ url_for('auth.login') }}">
         {% with messages = get_flashed_messages()%}
-        {% if messages%}
-            {% for message in messages%}
+        {% if messages %}
+            {% for message in messages %}
             <p style="color:red;">{{message}}</p>
-            {%endfor%}
-            {%endif%}
-            {%endwith%}
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
         <div class="col-md-12">
             <label for="inputEmail4" class="form-label">Email</label>
             <input type="email" class="form-control" id="inputEmail4" name="email" required>
         </div>
+
         <div class="col-md-12">
             <label for="inputPassword4" class="form-label">Password</label>
             <input type="password" class="form-control" id="inputPassword4" name="pwd" required>
         </div>
+
         <div class="col-12">
             <button type="submit" class="btn btn-primary w-100">Login</button>
         </div>
+
         <div class="col-12 text-center mt-3">
             <p>Don’t have an account?
                 <a href="{{ url_for('auth.register') }}" class="link-light">Sign up</a>
@@ -37,4 +81,5 @@
         </div>
     </form>
 </div>
+
 {% endblock %}

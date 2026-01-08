@@ -5,7 +5,7 @@
 <div class="container py-4">
 
     <!-- Page header -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-0">Drivers</h2>
             <p class="text-muted mb-0">
@@ -18,41 +18,57 @@
         </a>
     </div>
 
-    <!-- Drivers table -->
-    <div class="card shadow-sm">
-        <div class="card-header">
-            <h5 class="mb-0">All Drivers</h5>
+    {% if drivers|length == 0 %}
+        <div class="card shadow-sm text-center py-5" style="
+            background: rgba(255,255,255,0.12);
+            border-radius: 12px;
+            border: none;
+        ">
+            <div class="card-body">
+                <p class="text-white mb-0">No drivers available</p>
+            </div>
         </div>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Vehicle</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for driver in drivers %}
-                    <tr style="cursor:pointer;"
-                        onclick="window.location.href='{{ url_for('admin.driver_plan', driver_id=driver.id) }}'">
-                        <td>{{ driver.name }}</td>
-                        <td>{{ driver.email }}</td>
-                        <td>{{ driver.phone }}</td>
-                        <td>
-                            {% if driver.vehicle %}
-                                {{ driver.vehicle.model }} ({{ driver.vehicle.license_plate }})
-                            {% else %}
-                                —
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    {% else %}
+        <!-- Drivers table -->
+        <div class="card shadow-sm" style="
+            background: rgba(255,255,255,0.12);
+            border-radius: 12px;
+            border: none;
+        ">
+            <div class="card-header">
+                <h5 class="mb-0 text-white">All Drivers</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Vehicle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for driver in drivers %}
+                        <tr style="cursor:pointer;"
+                            onclick="window.location.href='{{ url_for('admin.driver_plan', driver_id=driver.id) }}'">
+                            <td>{{ driver.name }}</td>
+                            <td>{{ driver.email }}</td>
+                            <td>{{ driver.phone }}</td>
+                            <td>
+                                {% if driver.vehicle %}
+                                    {{ driver.vehicle.model }} ({{ driver.vehicle.license_plate }})
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    {% endif %}
 
 </div>
 {% endblock %}

@@ -16,22 +16,22 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table">
+                <table class="table" style="background: rgba(255,255,255,0.05); border-radius: 8px;">
                     <tbody>
-                        <tr class="table-light">
-                            <th scope="row">Client ID</th>
+                        <tr style="background: rgba(255,255,255,0.1);">
+                            <th scope="row" style="color: #000000;">Client ID</th>
                             <td>{{ client.client_id }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Email</th>
+                            <th scope="row" style="color: #000000;">Email</th>
                             <td>{{ client.email }}</td>
                         </tr>
-                        <tr class="table-light">
-                            <th scope="row">Address</th>
+                        <tr style="background: rgba(255,255,255,0.1);">
+                            <th scope="row" style="color: #000000;">Address</th>
                             <td>{{ client.address }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Phone</th>
+                            <th scope="row" style="color: #000000;">Phone</th>
                             <td>{{ client.phone }}</td>
                         </tr>
                     </tbody>
@@ -42,5 +42,4 @@
     </div>
 
 </div>
-
 {% endblock %}
